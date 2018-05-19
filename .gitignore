@@ -6,6 +6,7 @@
 Assets/AssetStoreTools*
 Assets/*
 !/Assets/MainScene.unity
+!/Assets/WizardUI.unity
 
 # Visual Studio 2015 cache directory
 /.vs/
