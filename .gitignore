@@ -5,7 +5,10 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 Assets/*
+
+#Include these files
 !/Assets/MainScene.unity
+!/Assets/Env.unity
 !/Assets/models
 !/Assets/textures
 !/Assets/materials
