@@ -8,10 +8,14 @@ Assets/*
 
 #Include these files
 !/Assets/MainScene.unity
+!/Assets/WizardUI.unity
 !/Assets/Env.unity
+
 !/Assets/models
 !/Assets/textures
 !/Assets/materials
+!/Assets/Scripts
+!/Assets/Questions
 
 # Visual Studio 2015 cache directory
 /.vs/
