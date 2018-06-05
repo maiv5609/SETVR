@@ -4,15 +4,25 @@ using UnityEngine;
 
 public class Gaze : MonoBehaviour {
 
-	public float attentionTime;
+	public float lookAwayTime;
 	private bool prevView = false;
 	private float currTime;
 	private float prevTime;
+	private float attentionTime;
+	private float distractionTime;
+	private float startAttention;
+	private float startDistracted;
 
 	void Awake(){
 
 		currTime = Time.time;
 		prevTime = Time.time;
+	}
+
+	void OnDestroy(){
+
+		print ("Attention Time: " + attentionTime);
+		print ("Distrated Time: " + distractionTime);
 	}
 
 	// Update is called once per frame
@@ -33,22 +43,28 @@ public class Gaze : MonoBehaviour {
 
 		if (!prevView && payingAttention) {
 
+			attentionTime += currTime - startDistracted;
+			startAttention = Time.time;
 			print (payingAttention);
 			prevView = true;
 		}
 
 		if (prevView && !payingAttention) {
 
+			distractionTime += currTime - startAttention;
+			startDistracted = Time.time;
 			print (payingAttention);
 			prevView = false;
 		}
 
 		//has user been looking away for longer than attentionTime seconds
-		if (currTime - prevTime >= attentionTime) {
+		if (currTime - prevTime >= lookAwayTime) {
 
 			//trigger interviewer to acknowledge that the user is not paying attention
 			print("User looked away for too long.");
 		}
 
 	}
+
+
 }
