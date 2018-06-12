@@ -9,3 +9,5 @@ Post Processing Stack - Unity Essentials
 3D Low Poly Car For Games (Tocus) - Ruslan
 Small Plants - Keilbaum
 Simple City pack plain - Polygon Land
+Big Furniture Pack - Vertex
+Tim's Horror Assets - The bloody door

@@ -20,7 +20,7 @@ public class UserVoice : MonoBehaviour {
 			print("no microphone plugged in");
 		} else {
 			
-			audio.clip = Microphone.Start (devices [0], true, 1200, 16000);
+			audio.clip = Microphone.Start(devices [0], true, 1200, 16000);
 			audio.loop = true;
 			while (!(Microphone.GetPosition (null) > 0)) {}
 			audio.Play ();
@@ -30,9 +30,9 @@ public class UserVoice : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		float voiceVolume = voiceVolume ();
+		float currVoiceVolume = voiceVolume();
 
-		if (voiceVolume >= isSpeakingThreshold) {
+		if (currVoiceVolume >= isSpeakingThreshold) {
 
 			//do something cause the user spoke
 			print("user is speaking");
