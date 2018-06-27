@@ -29,9 +29,9 @@ public class UserVoice : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-		float currVoiceVolume = voiceVolume();
 
+		float currVoiceVolume = voiceVolume();
+		print(currVoiceVolume);
 		if (currVoiceVolume >= isSpeakingThreshold) {
 
 			//do something cause the user spoke
@@ -47,14 +47,14 @@ public class UserVoice : MonoBehaviour {
 		float sum = 0;
 		float voiceVolume = 0;
 		float[] voiceData = new float[voiceSampleSize];
-		audio.clip.GetData (voiceData, 0);
 
-		for (int i = 0; i < voiceData.Length; i++) {
-
-			sum += voiceData [i];
+		if (voiceData != null) {
+			audio.clip.GetData (voiceData, 0);
+			for (int i = 0; i < voiceData.Length; i++) {
+				sum += voiceData [i];
+			}
+			voiceVolume = sum / voiceSampleSize;
 		}
-
-		voiceVolume = sum / voiceSampleSize;
 
 		return voiceVolume;
 	}

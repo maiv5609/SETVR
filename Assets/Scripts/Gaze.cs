@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Gaze : MonoBehaviour {
 
@@ -13,6 +14,10 @@ public class Gaze : MonoBehaviour {
 	private float startAttention;
 	private float startDistracted;
 
+	//Variables for fading UI based on eye contact
+	public Image Icon; //Attach an image you want to fade in the GameObject's Inspector
+	bool fading; //Use this to tell if the toggle returns true or false
+
 	void Awake(){
 
 		currTime = Time.time;
@@ -22,7 +27,7 @@ public class Gaze : MonoBehaviour {
 	void OnDestroy(){
 
 		print ("Attention Time: " + attentionTime);
-		print ("Distrated Time: " + distractionTime);
+		print ("Distracted Time: " + distractionTime);
 	}
 
 	// Update is called once per frame
@@ -45,16 +50,25 @@ public class Gaze : MonoBehaviour {
 
 			attentionTime += currTime - startDistracted;
 			startAttention = Time.time;
-			print (payingAttention);
 			prevView = true;
+			fading = false;
 		}
 
 		if (prevView && !payingAttention) {
 
 			distractionTime += currTime - startAttention;
 			startDistracted = Time.time;
-			print (payingAttention);
 			prevView = false;
+			fading = true;
+		}
+
+		//If fading is true, fade in Gaze Indicator
+		if (fading == true) {
+			Icon.CrossFadeAlpha(1, 2.0f, false);
+		}
+		//If fading is false, fade out Gaze Indicator
+		else if (fading == false) {
+			Icon.CrossFadeAlpha(0, 0.5f, false);
 		}
 
 		//has user been looking away for longer than attentionTime seconds
