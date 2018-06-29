@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Analytics;
 
 public class Gaze : MonoBehaviour {
 
@@ -28,6 +29,12 @@ public class Gaze : MonoBehaviour {
 
 		print ("Attention Time: " + attentionTime);
 		print ("Distracted Time: " + distractionTime);
+
+		//Send information to Unity Analytics
+		AnalyticsEvent.Custom ("Focus_Time", new Dictionary<string, object> {
+			{"AttentionTime", attentionTime},
+			{"DistractedTime", distractionTime}
+		});
 	}
 
 	// Update is called once per frame
