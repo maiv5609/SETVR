@@ -443,11 +443,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4004965118951458, guid: ffa4d200e6c7d9c4b90b3764b7ed86d4,
     type: 2}
   m_PrefabInternal: {fileID: 19971017}
---- !u!1 &20506919 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1538727058887424, guid: be540b97364be0a4890e39e62ac89ed1,
-    type: 2}
-  m_PrefabInternal: {fileID: 487559572}
 --- !u!1001 &20598583
 Prefab:
   m_ObjectHideFlags: 0
@@ -623,12 +618,12 @@ GameObject:
   m_Component:
   - component: {fileID: 43492321}
   m_Layer: 0
-  m_Name: Recording Cameras
+  m_Name: Recording Cameras (RockVR)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &43492321
 Transform:
   m_ObjectHideFlags: 0
@@ -763,11 +758,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4558070733231408, guid: a9da80f587bbf9046aefc4a4cfb8a7fc,
     type: 2}
   m_PrefabInternal: {fileID: 49868767}
---- !u!1 &52047132 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1391022766006510, guid: be540b97364be0a4890e39e62ac89ed1,
-    type: 2}
-  m_PrefabInternal: {fileID: 487559572}
 --- !u!1001 &63290886
 Prefab:
   m_ObjectHideFlags: 0
@@ -1921,31 +1911,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoPopulateObjectReferences: 1
-  actualBoundaries: {fileID: 1968467620}
-  actualHeadset: {fileID: 487559574}
-  actualLeftController: {fileID: 20506919}
-  actualRightController: {fileID: 52047132}
-  modelAliasLeftController: {fileID: 187898044}
-  modelAliasRightController: {fileID: 1183420684}
+  actualBoundaries: {fileID: 853891748}
+  actualHeadset: {fileID: 853891741}
+  actualLeftController: {fileID: 853891745}
+  actualRightController: {fileID: 853891743}
+  modelAliasLeftController: {fileID: 853891744}
+  modelAliasRightController: {fileID: 853891742}
   cachedSystemSDKInfo:
     baseTypeName: VRTK.SDK_BaseSystem
     fallbackTypeName: VRTK.SDK_FallbackSystem
-    typeName: VRTK.SDK_SimSystem
+    typeName: VRTK.SDK_SteamVRSystem
     descriptionIndex: 0
   cachedBoundariesSDKInfo:
     baseTypeName: VRTK.SDK_BaseBoundaries
     fallbackTypeName: VRTK.SDK_FallbackBoundaries
-    typeName: VRTK.SDK_SimBoundaries
+    typeName: VRTK.SDK_SteamVRBoundaries
     descriptionIndex: 0
   cachedHeadsetSDKInfo:
     baseTypeName: VRTK.SDK_BaseHeadset
     fallbackTypeName: VRTK.SDK_FallbackHeadset
-    typeName: VRTK.SDK_SimHeadset
+    typeName: VRTK.SDK_SteamVRHeadset
     descriptionIndex: 0
   cachedControllerSDKInfo:
     baseTypeName: VRTK.SDK_BaseController
     fallbackTypeName: VRTK.SDK_FallbackController
-    typeName: VRTK.SDK_SimController
+    typeName: VRTK.SDK_SteamVRController
     descriptionIndex: 0
 --- !u!1001 &162393681
 Prefab:
@@ -2276,11 +2266,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4558070733231408, guid: a9da80f587bbf9046aefc4a4cfb8a7fc,
     type: 2}
   m_PrefabInternal: {fileID: 183637560}
---- !u!1 &187898044 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1384746914293964, guid: be540b97364be0a4890e39e62ac89ed1,
-    type: 2}
-  m_PrefabInternal: {fileID: 487559572}
 --- !u!1001 &190522610
 Prefab:
   m_ObjectHideFlags: 0
@@ -8380,7 +8365,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &658057666
 Transform:
   m_ObjectHideFlags: 0
@@ -11948,7 +11933,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &991181836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14761,11 +14746,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4004965118951458, guid: ffa4d200e6c7d9c4b90b3764b7ed86d4,
     type: 2}
   m_PrefabInternal: {fileID: 1182548217}
---- !u!1 &1183420684 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1883185261795400, guid: be540b97364be0a4890e39e62ac89ed1,
-    type: 2}
-  m_PrefabInternal: {fileID: 487559572}
 --- !u!1001 &1186049782
 Prefab:
   m_ObjectHideFlags: 0
@@ -14881,15 +14861,15 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4000012462538518, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 15.94
+      value: 16.461
       objectReference: {fileID: 0}
     - target: {fileID: 4000012462538518, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 1.455
+      value: 1.376
       objectReference: {fileID: 0}
     - target: {fileID: 4000012462538518, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 8.902
+      value: 8.866
       objectReference: {fileID: 0}
     - target: {fileID: 4000012462538518, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
       propertyPath: m_LocalRotation.x
@@ -14936,7 +14916,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1000014042435618, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 20000013847750598, guid: 7fb4eb193786376458450101f3cdd3b3,
         type: 2}
@@ -23136,11 +23116,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4558070733231408, guid: a9da80f587bbf9046aefc4a4cfb8a7fc,
     type: 2}
   m_PrefabInternal: {fileID: 1968129998}
---- !u!1 &1968467620 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1000013941130086, guid: be540b97364be0a4890e39e62ac89ed1,
-    type: 2}
-  m_PrefabInternal: {fileID: 487559572}
 --- !u!4 &1971827829 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4497011438508190, guid: 7446a392a730ac14d9cc70d21cf7ace0,
