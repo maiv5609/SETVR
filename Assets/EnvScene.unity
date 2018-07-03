@@ -8372,13 +8372,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 658057665}
-  m_LocalRotation: {x: 0.14426768, y: 0.7143164, z: -0.15446909, w: 0.6671418}
-  m_LocalPosition: {x: -0.32968226, y: 3.2147074, z: 3.3352923}
+  m_LocalRotation: {x: 0.051157188, y: 0.72877187, z: -0.05477454, w: 0.6806426}
+  m_LocalPosition: {x: 16.461, y: 1.376, z: 8.866}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 43492321}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 24.404001, y: 93.912, z: 0}
+  m_LocalEulerAnglesHint: {x: 8.597, y: 93.912, z: 0}
 --- !u!81 &658057667
 AudioListener:
   m_ObjectHideFlags: 0
@@ -14922,6 +14922,26 @@ Prefab:
         type: 2}
       propertyPath: m_HDR
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011981344334, guid: 7fb4eb193786376458450101f3cdd3b3,
+        type: 2}
+      propertyPath: isDedicated
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011981344334, guid: 7fb4eb193786376458450101f3cdd3b3,
+        type: 2}
+      propertyPath: frameSize
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011981344334, guid: 7fb4eb193786376458450101f3cdd3b3,
+        type: 2}
+      propertyPath: encodeQuality
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011981344334, guid: 7fb4eb193786376458450101f3cdd3b3,
+        type: 2}
+      propertyPath: _targetFramerate
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 92000013582508172, guid: 7fb4eb193786376458450101f3cdd3b3, type: 2}
