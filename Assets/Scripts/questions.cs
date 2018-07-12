@@ -13,7 +13,13 @@ public class questions : MonoBehaviour {
 	List<string> phase1 = new List<string>();
 	List<string> phase2 = new List<string>();
 	List<string> phase3 = new List<string>();
-	
+
+	//Audioclip for interviewer responses
+	private Microphone mic;
+	public int voiceSampleSize;
+	public float isSpeakingThreshold;
+	AudioClip response;
+
 	// Populates Questions
 	void Start () {
 		
@@ -24,45 +30,38 @@ public class questions : MonoBehaviour {
 		path = Application.dataPath;
 		
 		//Read in phase 1 questions
-		System.IO.StreamReader file = new System.IO.StreamReader(path + "/Questions/Phase1.txt");
+		System.IO.StreamReader file = new System.IO.StreamReader(path + "/Resources/Questions/Phase1.txt");
 		while((line = file.ReadLine()) != null){
 			phase1.Add(line);
 		}
 		
 		//Read in phase 2 questions
-		file = new System.IO.StreamReader(path + "/Questions/Phase2.txt");
+		file = new System.IO.StreamReader(path + "/Resources/Questions/Phase2.txt");
 		while((line = file.ReadLine()) != null){
 			phase2.Add(line);
 		}
 		
-		//TODO: remove this test print
-		/*
-		UnityEngine.Debug.Log("Length:" + phase2.Count);
-		while(counter != phase2.Count){
-			UnityEngine.Debug.Log(phase2[counter]);
-			counter++;
-		}
-		counter = 0;
-		*/
-		
 		//Read in phase 3 questions
-		file = new System.IO.StreamReader(path + "/Questions/Phase3.txt");
+		file = new System.IO.StreamReader(path + "/Resources/Questions/Phase3.txt");
 		while((line = file.ReadLine()) != null){
 			phase3.Add(line);
 		}	
-		
-		testComponent = GameObject.Find("QuestionText").GetComponent<Text>().text;
-		UnityEngine.Debug.Log("Found: " + testComponent);
-		
-		
+
+		Invoke ("nextQuestion", 4);
+		 
 	}
 
 	public void nextQuestion(){
 		int currIndex = 0;
+
 		System.Random genRand = new System.Random();
 		//phase 1 questions
 		if (index1 == 0){
+			//TODO: Test detecting when audio is playing and if user is talking during audio
 			GameObject.Find("QuestionText").GetComponent<Text>().text = " Current Question: " + phase1[0];
+			//Load audio and play at point
+			//interviewerSpeak(1, 1);
+
 			phase1.RemoveAt(0);
 			index1++;
 		}else if(index2 == 0 && index3 == 0){
@@ -81,5 +80,37 @@ public class questions : MonoBehaviour {
 		}else{
 			GameObject.Find("QuestionText").GetComponent<Text>().text = "End of Questions";
 		}
+	}
+
+	/* Takes in current interview phase and selected question
+	 * Plays selected audio clip for question, detects if user is speaking while interviewer is speaking
+	 */
+	float interviewerSpeak(int phase, int question){
+		string[] devices = Microphone.devices;
+		AudioClip sampleClip; //Test clip
+		AudioSource audio = GetComponent<AudioSource> ();
+		float sum = 0;
+		float voiceVolume = 0;
+		float[] voiceData = new float[voiceSampleSize];
+
+		//TODO: Test out pausing audio clip in response to the user speaking, track number of pauses.
+		//Explore alternative responses to the user talking while the interviewer is speaking.
+		response = Resources.Load<AudioClip>("QuestionAudio/P1Q1");
+		//audio.PlayOneShot ((AudioClip)Resources.Load ("QuestionAudio/P1Q1"));
+		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
+
+		//Testing recording audio clips
+		sampleClip = Microphone.Start(devices [0], true, 10, 44100);
+		SavWav.Save ("questionsVoiceTestFile", sampleClip);
+
+		if (voiceData != null) {
+			audio.clip.GetData (voiceData, 0);
+			for (int i = 0; i < voiceData.Length; i++) {
+				sum += voiceData [i];
+			}
+			voiceVolume = sum / voiceSampleSize;
+		}
+			
+		return voiceVolume;
 	}
 }

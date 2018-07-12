@@ -13,14 +13,19 @@ public class UserVoice : MonoBehaviour {
 
 		string[] devices = Microphone.devices;
 		AudioSource audio = GetComponent<AudioSource> ();
+		AudioClip sampleClip; //Test clip
 
 		if (devices.Length == 0) {
 
 			//pause and ask user to plug in mic
 			print("no microphone plugged in");
 		} else {
-			
 			audio.clip = Microphone.Start(devices [0], true, 1200, 16000);
+
+			//Testing recording audio clips
+			sampleClip = Microphone.Start(devices [0], true, 10, 44100);
+			SavWav.Save ("userVoiceTestFile", sampleClip);
+
 			audio.loop = true;
 			while (!(Microphone.GetPosition (null) > 0)) {}
 			audio.Play ();
