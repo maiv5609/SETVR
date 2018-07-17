@@ -4558,13 +4558,13 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 310524133}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67c756cf7fa5a14b8ce77d9090294bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   voiceSampleSize: 0
-  isSpeakingThreshold: 0
+  sensitivity: 0
 --- !u!4 &310524135
 Transform:
   m_ObjectHideFlags: 0
