@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Independent script for detecting user speech
+ * Main script for simulation logic is Questions.cs
+ */
+
 public class UserVoice : MonoBehaviour {
 
 	private Microphone mic;
@@ -22,8 +26,6 @@ public class UserVoice : MonoBehaviour {
 			print("no microphone plugged in");
 		} else {
 			microphoneInput = Microphone.Start(Microphone.devices[0], true, 999, 44100);
-
-
 		}
 	}
 	
@@ -60,26 +62,6 @@ public class UserVoice : MonoBehaviour {
 	void OnApplicationQuit(){
 		//Save Audio to file
 		SavWav.Save ("microphoneInputTest", microphoneInput);
-	}
-
-	//takes volume data from microphone, averages it
-	//returns average voice volume
-	float voiceVolume(){
-
-		AudioSource audio = GetComponent<AudioSource> ();
-		float sum = 0;
-		float voiceVolume = 0;
-		float[] voiceData = new float[voiceSampleSize];
-
-		if (voiceData != null) {
-			audio.clip.GetData (voiceData, 0);
-			for (int i = 0; i < voiceData.Length; i++) {
-				sum += voiceData [i];
-			}
-			voiceVolume = sum / voiceSampleSize;
-		}
-
-		return voiceVolume;
 	}
 		
 }
