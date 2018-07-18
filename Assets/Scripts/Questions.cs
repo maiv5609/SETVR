@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Questions : MonoBehaviour {
+public class questions : MonoBehaviour {
 	//Current indexes for lists
 	int index1 = 0;
 	int index2 = 0;
@@ -21,7 +21,12 @@ public class Questions : MonoBehaviour {
 
 	//User Mic Input
 	public float sensitivity;
-	AudioClip microphoneInput;
+	AudioClip microphoneInput; //Used to detect if user is speaking
+	AudioClip userResponse; //Clip used for recording response to question
+
+	//metrics
+	int interruptCount = 0;
+	public bool currentInterrupt = false;
 
 	// Called when object has been initialized by Unity
 	void Awake () {
@@ -53,13 +58,14 @@ public class Questions : MonoBehaviour {
 		sensitivity = 0.3f; // Sensitivity for mic input
 
 		if (Microphone.devices.Length == 0) {
-			//pause and ask user to plug in mic
 			print("no microphone plugged in");
 		} else {
-			microphoneInput = Microphone.Start(Microphone.devices[0], true, 999, 44100);
+			//Open mic for 15 minutes to detect response
+			microphoneInput = Microphone.Start(Microphone.devices[0], true, 900, 44100);
 		}
 
-		Invoke ("nextQuestion", 4); 
+		Invoke ("nextQuestion", 4);
+		Invoke ("nextQuestion", 10); 
 	}
 
 	// Update is called once per frame
@@ -87,24 +93,31 @@ public class Questions : MonoBehaviour {
 			if (level > sensitivity) {
 				//Check if interviewer is talking (find the temp audiosource gameobject)
 				if (GameObject.Find ("One shot audio")) {
-					Debug.Log ("interuptted");
+					//User speaking during 
+					currentInterrupt = true;
+					Debug.Log ("Interrupt: " + currentInterrupt);
 				}
-				Debug.Log ("Mic input detected");
-				Debug.Log ("Level: " + level);
+				//Debug.Log ("Mic input detected");
+				//Debug.Log ("Level: " + level);
 			}
 		}
 	}
 
 	public void nextQuestion(){
-		int currIndex = 0;
+		int currIndex = 1;
 
+		//Check if user interrupted question
+		if (currentInterrupt) {
+			interruptCount++;
+		}
+		Debug.Log ("Times interrupted: " + interruptCount);
 		System.Random genRand = new System.Random();
 		//phase 1 questions
 		if (index1 == 0){
-			//TODO: Test detecting when audio is playing and if user is talking during audio
-			GameObject.Find("QuestionText").GetComponent<Text>().text = " Current Question: " + phase1[0];
-			InterviewerSpeak(1, 1);
-
+			currIndex = genRand.Next(0, phase1.Count-1);
+			GameObject.Find("QuestionText").GetComponent<Text>().text = " Current Question: " + phase1[currIndex];
+			InterviewerSpeak(2, 1);
+			Debug.Log ("Playing: 1," + 1);
 			phase1.RemoveAt(0);
 			index1++;
 		}else if(index2 == 0 && index3 == 0){
@@ -128,9 +141,8 @@ public class Questions : MonoBehaviour {
 	/* Takes in current interview phase and selected question
 	 * Plays selected audio clip for question, detects if user is speaking while interviewer is speaking
 	 */
-	float InterviewerSpeak(int phase, int question){
+	void InterviewerSpeak(int phase, int question){
 		string[] devices = Microphone.devices;
-		AudioClip sampleClip; //Test clip
 		AudioSource audio = GetComponent<AudioSource> ();
 		float sum = 0;
 		float voiceVolume = 0;
@@ -138,26 +150,17 @@ public class Questions : MonoBehaviour {
 
 		//TODO: Test out pausing audio clip in response to the user speaking, track number of pauses.
 		//Explore alternative responses to the user talking while the interviewer is speaking.
-		response = Resources.Load<AudioClip>("QuestionAudio/P1Q1");
+		Debug.Log("Phase: " + phase + " Question: " + question);
+		Debug.Log ("/Resources/QuestionAudio/P" + phase + "Q" + question);
+		response = Resources.Load<AudioClip>("QuestionAudio/P" + phase + "Q" + question);
 		//AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
 		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
-
-		if (Microphone.devices.Length != 0 && voiceData != null) {
-			//Testing recording audio clips
-			sampleClip = Microphone.Start(devices [0], true, 10, 44100);
-			SavWav.Save ("questionsVoiceTestFile", sampleClip);
-			audio.clip.GetData (voiceData, 0);
-			for (int i = 0; i < voiceData.Length; i++) {
-				sum += voiceData [i];
-			}
-			voiceVolume = sum / voiceSampleSize;
-		}
-		return voiceVolume;
 	}
 
 	void OnApplicationQuit(){
 		if (Microphone.devices.Length != 0) {
 			//Save Audio to file
+			Debug.Log ("Times interrupted: " + interruptCount);
 			SavWav.Save ("microphoneInputTest", microphoneInput);
 		}
 	}
