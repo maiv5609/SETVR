@@ -21,6 +21,7 @@ public class Questions : MonoBehaviour {
 
 	//User Mic Input
 	public float sensitivity;
+	int interruptCounter = 0;
 	AudioClip microphoneInput;
 	bool userAnswered = false;
 	bool interrupted = false;
@@ -29,7 +30,6 @@ public class Questions : MonoBehaviour {
 	// Called when object has been initialized by Unity
 	void Awake () {
 		/* Reading in Questions */
-		int counter = 0;
 		string line;
 		string testComponent;
 		string path;
@@ -61,18 +61,12 @@ public class Questions : MonoBehaviour {
 		} else {
 			microphoneInput = Microphone.Start(Microphone.devices[0], true, 999, 44100);
 		}
-
-
-
+			
 		/* Setting up event listening for user response */
-		EventManager.StartListening ("Answered", EventTest);
-		EventManager.TriggerEvent ("Answered");
+		//EventManager.StartListening("interrupt", EventTest);
+		//EventManager.TriggerEvent ("Answered");
 		//TODO: Remove this
 		Invoke ("nextQuestion", 4); 
-	}
-
-	void EventTest(){
-		Debug.Log ("Event Ping");
 	}
 
 	// Update is called once per frame
@@ -100,17 +94,13 @@ public class Questions : MonoBehaviour {
 			//Mic input is louder than set sensitivity 
 			if (level > sensitivity) {
 				//Check if interviewer is talking (find the temp audiosource gameobject)
-				if (GameObject.Find ("One shot audio")) {
-					Debug.Log ("interrupted");
+				if (GameObject.Find ("One shot audio") && !interrupted) {
+					//User interrupted interviewer
 					interrupted = true;
-					//interrupt, either fire off event or increment interrupt
 				} else if (!userAnswered && !clipRecorded) {
 					//If user hasn't answered, audio clip hasn't been recorded yet
 					//This should only be used once per question to begin the recording
 					recordAudioClip();
-
-					//Begin recording
-					clipRecorded = true;
 				} 
 					
 				//TODO: figure out whether event needs to be fired off for user's finished response or not
@@ -118,19 +108,30 @@ public class Questions : MonoBehaviour {
 				Debug.Log ("Level: " + level);
 			} else {
 				//User is not speaking
-				if (clipRecorded && userAnswered) {
+				if (clipRecorded && userAnswered && !GameObject.Find ("One shot audio")) {
 					//Audio has been recorded and User has answered the question 
 					nextQuestion();
+					Debug.Log ("Next Question");
 				}
 			}
 		}
 	}
 
-	/* Handles recording audioclip when called
+	/* Handles recording audioclip when called and detects if user is still speaking
 	 * 
 	 */
 	public void recordAudioClip(){
 		userAnswered = true;
+		clipRecorded = true;
+		//Begin recording
+		Debug.Log ("User's response: True");
+	}
+
+	/* Maybe use this as an interrupt event call?
+	 * 
+	 */
+	public void interrupt(){
+
 	}
 
 	/* Handles moving to each phase and question when needed
@@ -142,6 +143,11 @@ public class Questions : MonoBehaviour {
 		clipRecorded = false;
 		userAnswered = false;
 
+		if (interrupted) {
+			interruptCounter++;
+			Debug.Log ("User Interrupted: " + interruptCounter);
+			interrupted = false;
+		}
 
 		System.Random genRand = new System.Random();
 		//phase 1 questions
@@ -149,7 +155,6 @@ public class Questions : MonoBehaviour {
 			//TODO: Test detecting when audio is playing and if user is talking during audio
 			GameObject.Find("QuestionText").GetComponent<Text>().text = " Current Question: " + phase1[0];
 			InterviewerSpeak(1, 1);
-
 			phase1.RemoveAt(0);
 			index1++;
 		}else if(index2 == 0 && index3 == 0){
@@ -171,33 +176,14 @@ public class Questions : MonoBehaviour {
 	}
 
 	/* Takes in current interview phase and selected question
-	 * Plays selected audio clip for question, detects if user is speaking while interviewer is speaking
+	 * Plays selected audio clip for question
 	 */
-	float InterviewerSpeak(int phase, int question){
-		string[] devices = Microphone.devices;
-		AudioClip sampleClip; //Test clip
-		AudioSource audio = GetComponent<AudioSource> ();
-		float sum = 0;
-		float voiceVolume = 0;
-		float[] voiceData = new float[voiceSampleSize];
-
+	void InterviewerSpeak(int phase, int question){
 		//TODO: Test out pausing audio clip in response to the user speaking, track number of pauses.
 		//Explore alternative responses to the user talking while the interviewer is speaking.
 		response = Resources.Load<AudioClip>("QuestionAudio/P1Q1");
 		//AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
 		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
-
-		if (Microphone.devices.Length != 0 && voiceData != null) {
-			//Testing recording audio clips
-			sampleClip = Microphone.Start(devices [0], true, 10, 44100);
-			SavWav.Save ("questionsVoiceTestFile", sampleClip);
-			audio.clip.GetData (voiceData, 0);
-			for (int i = 0; i < voiceData.Length; i++) {
-				sum += voiceData [i];
-			}
-			voiceVolume = sum / voiceSampleSize;
-		}
-		return voiceVolume;
 	}
 
 	void OnApplicationQuit(){
@@ -205,5 +191,6 @@ public class Questions : MonoBehaviour {
 			//Save Audio to file
 			SavWav.Save ("microphoneInputTest", microphoneInput);
 		}
+		Debug.Log("Total Questions Interrupted: " + interruptCounter);
 	}
 }
