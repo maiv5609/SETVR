@@ -70,6 +70,7 @@ public class EventManager : MonoBehaviour {
 		if (instance.eventDictionary.TryGetValue (eventName, out thisEvent))
 		{
 			thisEvent.Invoke ();
+			Debug.Log("Event: " + eventName);
 		}
 	}
 }

@@ -16,12 +16,15 @@ public class Questions : MonoBehaviour {
 
 	//Audioclip for interviewer responses
 	public int voiceSampleSize;
-	bool interviewerSpeak = false;
+	bool interviewerSpeak = false; //Might not need this
 	AudioClip response;
 
 	//User Mic Input
 	public float sensitivity;
 	AudioClip microphoneInput;
+	bool userAnswered = false;
+	bool interrupted = false;
+	bool clipRecorded = false;
 
 	// Called when object has been initialized by Unity
 	void Awake () {
@@ -93,20 +96,51 @@ public class Questions : MonoBehaviour {
 
 			float level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
 
+			//TODO: Here is the logic handling user interrupts
 			//Mic input is louder than set sensitivity 
 			if (level > sensitivity) {
 				//Check if interviewer is talking (find the temp audiosource gameobject)
 				if (GameObject.Find ("One shot audio")) {
-					Debug.Log ("interuptted");
-				}
+					Debug.Log ("interrupted");
+					interrupted = true;
+					//interrupt, either fire off event or increment interrupt
+				} else if (!userAnswered && !clipRecorded) {
+					//If user hasn't answered, audio clip hasn't been recorded yet
+					//This should only be used once per question to begin the recording
+					recordAudioClip();
+
+					//Begin recording
+					clipRecorded = true;
+				} 
+					
+				//TODO: figure out whether event needs to be fired off for user's finished response or not
 				Debug.Log ("Mic input detected");
 				Debug.Log ("Level: " + level);
+			} else {
+				//User is not speaking
+				if (clipRecorded && userAnswered) {
+					//Audio has been recorded and User has answered the question 
+					nextQuestion();
+				}
 			}
 		}
 	}
 
+	/* Handles recording audioclip when called
+	 * 
+	 */
+	public void recordAudioClip(){
+		userAnswered = true;
+	}
+
+	/* Handles moving to each phase and question when needed
+	 * 
+	 */
 	public void nextQuestion(){
 		int currIndex = 0;
+		//Reset detection flags
+		clipRecorded = false;
+		userAnswered = false;
 
 
 		System.Random genRand = new System.Random();
