@@ -17,8 +17,6 @@ public class UserVoice : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-
-		AudioSource audio = GetComponent<AudioSource> ();
 		sensitivity = 0.3f; // Sensitivity for mic input
 
 		if (Microphone.devices.Length == 0) {
