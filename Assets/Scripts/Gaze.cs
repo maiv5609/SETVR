@@ -38,7 +38,6 @@ public class Gaze : MonoBehaviour {
 
 		int layerMask = 1 << 8;
 
-		RaycastHit hit;
 		bool payingAttention = Physics.Raycast (transform.position, transform.forward, Mathf.Infinity, layerMask);
 		Debug.DrawRay (transform.position, transform.forward * 100f, Color.red);
 

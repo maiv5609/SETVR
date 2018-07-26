@@ -1,9 +1,4 @@
-﻿//TODO: Error with GetData had to do with me closing the microphone when making clips
-// Currently working on detecting prolonged silence. There is an issue with questions continuely moving on 
-// when the mic is on.
-// Need to go into NextQUestion and add a gate (until the user has answered)
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Questions : MonoBehaviour {
+	Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
 	//Current indexes for lists
 	int index1 = 0;
 	int index2 = 0;
@@ -24,7 +20,6 @@ public class Questions : MonoBehaviour {
 
 	//Audioclip for interviewer responses
 	int voiceSampleSize;
-	bool interviewerSpeak = false; //Might not need this
 	AudioClip response;
 
 	//User Mic Input
@@ -43,6 +38,7 @@ public class Questions : MonoBehaviour {
 
 	// Called when object has been initialized by Unity
 	void Awake () {
+		timeline.Start ();
 		/* Reading in Questions */
 		string line;
 		string path;
@@ -161,6 +157,20 @@ public class Questions : MonoBehaviour {
 		}
 	}
 
+	/* Saves timestamp of answered question to csv
+	 * 
+	 */
+	void saveTimestamp (int phase, int question, int minute, int second){
+		string filePath = Application.dataPath + "answerTimestamps.csv";
+		//This is the writer, it writes to the filepath
+		StreamWriter writer = new StreamWriter (filePath);
+		writer.WriteLine ("phase, question, minute, second");
+		writer.WriteLine (phase.ToString() + "," + question.ToString() + "," + minute.ToString() + "," + second.ToString());
+		writer.Flush ();
+		//This closes the file
+		writer.Close ();
+	}
+
 	/* Handles recording audioclip when called and detects if user is still speaking
 	 * 
 	 */
@@ -241,11 +251,17 @@ public class Questions : MonoBehaviour {
 		//TODO: Test out pausing audio clip in response to the user speaking, track number of pauses.
 		//Explore alternative responses to the user talking while the interviewer is speaking.
 		response = Resources.Load<AudioClip>("QuestionAudio/P" + phase+ "Q" + question);
+		
+		//Record timestamp to csv
+		TimeSpan time = timeline.Elapsed;
+		saveTimestamp (phase, question, (int)time.TotalMinutes, (int)time.TotalSeconds); 
+		//void saveTimestamp (int phase, int question, int minute, int second)
 		//AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
 		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.1f);
 	}
 
 	void OnApplicationQuit(){
+		timeline.Stop ();
 		if (Microphone.devices.Length != 0) {
 			//Save Audio to file
 
