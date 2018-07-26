@@ -7,43 +7,51 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Questions : MonoBehaviour {
-	Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
+	//Metrics
+	private string filePath;
+	private int pauses; 
+	private StreamWriter writer;
+	private Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
+	private Stopwatch responseLength = new Stopwatch(); //Times 
+
 	//Current indexes for lists
-	int index1 = 0;
-	int index2 = 0;
-	int index3 = 0;
+	private int index1 = 0;
+	private int index2 = 0;
+	private int index3 = 0;
 	//Lists to store questions
-	List<string> phase1 = new List<string>();
-	List<string> phase2 = new List<string>();
-	List<string> phase3 = new List<string>();
-	bool endQuestions = false;
+	private List<string> phase1 = new List<string>();
+	private List<string> phase2 = new List<string>();
+	private List<string> phase3 = new List<string>();
+	private bool endQuestions = false;
 
 	//Audioclip for interviewer responses
-	int voiceSampleSize;
-	AudioClip response;
+	private int voiceSampleSize;
+	private AudioClip response;
 
 	//User Mic Input
 	public float sensitivity;
 	public int silenceTime;
-	int interruptCounter = 0;
-	Stopwatch stopwatch = new Stopwatch ();
-	AudioClip microphoneInput;
-	bool userAnswered = false;
-	bool interrupted = false;
+	private int interruptCounter = 0;
+	private Stopwatch stopwatch = new Stopwatch (); //used to detect slience
+	private AudioClip microphoneInput;
+	private bool userAnswered = false;
+	private bool interrupted = false;
 
 	//Recording Clips
-	AudioClip currentClip;
-	bool clipRecorded = false;
-	int clipCounter = 0;
+	private AudioClip currentClip;
+	private bool clipRecorded = false;
+	private int clipCounter = 0;
 
 	// Called when object has been initialized by Unity
 	void Awake () {
+		filePath = Application.dataPath + "metrics.csv";
+		writer = new StreamWriter (filePath);
 		timeline.Start ();
 		/* Reading in Questions */
 		string line;
 		string path;
 		path = Application.dataPath;
-		silenceTime = 4;
+		silenceTime = 5;
 		
 		//Read in phase 1 questions
 		System.IO.StreamReader file = new System.IO.StreamReader(path + "/Resources/Questions/Phase1.txt");
@@ -151,6 +159,9 @@ public class Questions : MonoBehaviour {
 							stopAudioClip ();
 							nextQuestion ();
 						}
+						if (3 >= silenceTime) {
+							pauses++;
+						}
 					}
 				}
 			}
@@ -161,14 +172,9 @@ public class Questions : MonoBehaviour {
 	 * 
 	 */
 	void saveTimestamp (int phase, int question, int minute, int second){
-		string filePath = Application.dataPath + "answerTimestamps.csv";
-		//This is the writer, it writes to the filepath
-		StreamWriter writer = new StreamWriter (filePath);
 		writer.WriteLine ("phase, question, minute, second");
 		writer.WriteLine (phase.ToString() + "," + question.ToString() + "," + minute.ToString() + "," + second.ToString());
 		writer.Flush ();
-		//This closes the file
-		writer.Close ();
 	}
 
 	/* Handles recording audioclip when called and detects if user is still speaking
@@ -180,6 +186,7 @@ public class Questions : MonoBehaviour {
 			//currentClip = Microphone.Start (Microphone.devices [0], true, 180, 44100);
 			userAnswered = true;
 			print ("userAnswered = true");
+			responseLength.Start ();
 		} 
 	}
 
@@ -192,8 +199,14 @@ public class Questions : MonoBehaviour {
 		//Microphone.End(Microphone.devices[0]);
 		//Save Audio to file
 		print ("clipRecorded = true");
+		responseLength.Stop ();
+		TimeSpan responseTimespan = responseLength.Elapsed;
+		responseLength.Reset();
+		writer.WriteLine ("responseLength");
+		writer.WriteLine (responseTimespan.TotalMinutes.ToString(), responseTimespan.TotalSeconds.ToString());
 		//SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
 	}
+
 
 
 	/* Handles moving to each phase and question when needed
@@ -269,5 +282,7 @@ public class Questions : MonoBehaviour {
 			//SavWav.Save ("microphoneInputTest", microphoneInput);
 		}
 		print ("Total Questions Interrupted: " + interruptCounter);
+		//This closes the file
+		writer.Close ();
 	}
 }

@@ -717,7 +717,7 @@ PlayerSettings:
   facebookSdkVersion: 7.9.4
   apiCompatibilityLevel: 2
   cloudProjectId: 2b06fc7a-8b21-4f72-ba3c-0db338a56ff1
-  projectName: 
+  projectName: SETVR
   organizationId: maiv5609
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
