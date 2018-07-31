@@ -4,15 +4,12 @@ using UnityEngine;
 
 /* Independent script for detecting user speech
  * Main script for simulation logic is Questions.cs
- * 
- * This script detects how loudly the user is speaking and detects if the user is speaking when
- * they speak loud enough
- * 
- * The sensitivity 
  */
 
 public class UserVoice : MonoBehaviour {
 
+	private Microphone mic;
+	public int voiceSampleSize;
 	public float sensitivity;
 	AudioClip microphoneInput;
 
@@ -20,8 +17,6 @@ public class UserVoice : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-
-		AudioSource audio = GetComponent<AudioSource> ();
 		sensitivity = 0.3f; // Sensitivity for mic input
 
 		if (Microphone.devices.Length == 0) {
