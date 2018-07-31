@@ -39,22 +39,22 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 1243134366}
-  m_IndirectSpecularColor: {r: 0.62503237, g: 0.8009764, b: 0.76583886, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 0
+  m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
-    m_IndirectOutputScale: 1
+    m_IndirectOutputScale: 1.57
     m_AlbedoBoost: 1
     m_TemporalCoherenceThreshold: 1
     m_EnvironmentLightingMode: 0
-    m_EnableBakedLightmaps: 0
-    m_EnableRealtimeLightmaps: 1
+    m_EnableBakedLightmaps: 1
+    m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
     serializedVersion: 10
     m_Resolution: 2
@@ -73,7 +73,7 @@ LightmapSettings:
     m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
-    m_BakeBackend: 0
+    m_BakeBackend: 1
     m_PVRSampling: 1
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
@@ -6893,7 +6893,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &420830612
 Light:
@@ -6924,7 +6924,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
@@ -9752,7 +9752,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &713194217
 Light:
@@ -9783,7 +9783,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
@@ -16033,7 +16033,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &1152406863
 Light:
@@ -16064,7 +16064,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
@@ -18389,7 +18389,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!108 &1374376779
 Light:
@@ -18420,7 +18420,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
@@ -24037,7 +24037,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100264, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 109
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100058, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -24049,7 +24049,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100262, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 109
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -24201,7 +24201,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100260, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 109
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100034, guid: 2cb0324fecacf244b8a99f0275a53a9c, type: 3}
       propertyPath: m_StaticEditorFlags
