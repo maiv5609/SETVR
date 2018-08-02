@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -10,7 +11,7 @@ public class API : MonoBehaviour {
 	private const string URL = "https://api.hexoskin.com/api/user";
 
     private const string username = "webert3@wwu.edu";
-    private const string password = "";
+    private const string password = "neat_lab_2018";
     private const string scope = "readonly";
     private const string grant_type = "password";
 
@@ -22,24 +23,34 @@ public class API : MonoBehaviour {
      */
     public class AuthResponse
     {
-        private string access_token;
-        private string token_type;
-        private string expires_in;
-        private string refresh_token;
-        private string scope;
+        public string access_token { get; set; }
+        public string token_type { get; set; }
+        public int expires_in { get; set; }
+        public string refresh_token { get; set; }
+        public string scope { get; set; }
 
-        public string getAccess()
-        {
-            return access_token;
+        public AuthResponse(string access_token, string token_type, int expires_in, string refresh_token, string scope){
+            this.access_token = access_token;
+            this.token_type = token_type;
+            this.expires_in = expires_in;
+            this.refresh_token = refresh_token;
+            this.scope = scope;
         }
-        public string getRefresh()
+
+        public static AuthResponse CreateFromJSON<T>(string jsonString)
         {
-            return refresh_token;
+            return JsonUtility.FromJson<AuthResponse>(jsonString);
+        }
+
+        //JsonUtility doesn't support parsing top level json array so you need to wrap it in an object
+        [Serializable]
+        private class Wrapper<String>{
+            public String[] Items;
         }
     }
 
-	//Main function
-	public void Request(){
+    //Main function
+    public void Request(){
 		WWWForm form = new WWWForm ();
         print("Requesting");
         StartCoroutine(RequestToken());
@@ -65,7 +76,7 @@ public class API : MonoBehaviour {
         print("Creating auth request");
 		WWWForm refreshForm = new WWWForm ();
         refreshForm.AddField("username", "webert3@wwu.edu");
-        refreshForm.AddField("password", "");
+        refreshForm.AddField("password", "neat_lab_2018");
         refreshForm.AddField("scope", "readonly");
         refreshForm.AddField("grant_type", "password");
 
@@ -83,10 +94,10 @@ public class API : MonoBehaviour {
             print("Auth Success");
             print(refreshReq.downloadHandler.text);
             //Parse response for auth
-            AuthResponse tokens = JsonUtility.FromJson<AuthResponse>(refreshReq.downloadHandler.text);
-            AUTHTOKEN = tokens.getAccess();
-            REFRESHTOKEN = tokens.getRefresh();
-            print("AUTH: " + AUTHTOKEN);
+            AuthResponse tokens = AuthResponse.CreateFromJSON(refreshReq.downloadHandler.text);
+            AUTHTOKEN = tokens.access_token;
+            REFRESHTOKEN = tokens.refresh_token;
+            print("AUTH: " + tokens.access_token);
             print("REFRESH: " + REFRESHTOKEN);
         }
         else{
