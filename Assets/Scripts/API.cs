@@ -7,13 +7,20 @@ using Newtonsoft;
 using UnityEngine;
 using UnityEngine.Networking;
 
+//TODO: Work on realtime request and switching starting timestamp to last available timestamp from previous request
 
 public class API : MonoBehaviour {
+    public int USERID;
 	private const string AUTHURL = "https://api.hexoskin.com/api/connect/oauth2/token/";
 	private const string URL = "https://api.hexoskin.com/api/user";
 
 	private string AUTHTOKEN;
 	private string REFRESHTOKEN;
+
+    //Base times for requests
+    private int startTime;
+    private int currentTime;
+    private int endTime;
 
 	/* Container class for auth token
      * 
@@ -33,23 +40,22 @@ public class API : MonoBehaviour {
 		print("Requesting");
         StartCoroutine(RequestToken());
 
-        //Parse Auth token
+        //Set current timestamp for realtime request, need to multiply this by 256 before request
+        TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+        int secondsSinceEpoch = (int)t.TotalSeconds;
+        startTime = secondsSinceEpoch;
+        currentTime = secondsSinceEpoch;
 
-		//By this point valid auth token has been given
-		//Dictionary<string, string> headers = form.headers;
-		//headers ["Authorization"] = "Bearer " + AUTHTOKEN;
+        endTime = startTime + 86400; //End time 24 hours from then
 
-		//WWW request = new WWW(URL, form);
-		//StartCoroutine (OnResponse (request));
+        //By this point valid auth token has been given Repeat call every 15 seconds
+        print("Requesting Realtime");
+        StartCoroutine(RealTimeRequest());
+    }
 
-		//if (request.error == "401 Unauthorized") {
-		//Token expired, refresh
-		//Debug.Log (request.error);
-		//requestToken (form, true);
-		//}
-	}
+    /* Parsing Functions */
 
-    public void parseAuth(string jsonResponse){
+    public void ParseAuth(string jsonResponse){
         AuthResponse tokens = Newtonsoft.Json.JsonConvert.DeserializeObject<AuthResponse>(jsonResponse);
 		AUTHTOKEN = tokens.access_token;
 		REFRESHTOKEN = tokens.refresh_token;
@@ -57,10 +63,54 @@ public class API : MonoBehaviour {
 		print ("REFRESH " + REFRESHTOKEN);
     }
 
-	/* Requests new access token
+    /* Requesting Functions */
+
+    /* Makes a request for realtime data
+     * Called with the assumption that there is a valid auth token
+     * Requests should ask for 15 seconds of data every 15 seconds
+     * https://api.hexoskin.com/api/data/?user=14052&datatype=19&start=392531420416&end=392541193472
+     */
+    private IEnumerator RealTimeRequest(){
+        //Have to use while true with a sleep in order to continuing calling every 15 seconds
+        while (true){
+            //Create and send auth request to Hexoskin
+            print("Creating realtime request");
+            currentTime = currentTime + 15;
+
+            int currentHexoTime = currentTime * 256;
+            int endHexoTime = endTime * 256;
+
+            //Build request url
+            String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime + "&end=" + endHexoTime;
+
+            UnityWebRequest realTimeReq = UnityWebRequest.Get(realTimeReqURI);
+            realTimeReq.SetRequestHeader("Authorization", "Bearer " + AUTHTOKEN);
+            realTimeReq.chunkedTransfer = false;
+
+            print("Submitting");
+            yield return realTimeReq.SendWebRequest();
+            print("Response received");
+
+            //Check for errors
+            if (realTimeReq.error == null)
+            {
+                print("Response Text");
+                print(realTimeReq.downloadHandler.text);
+                //Parse response for auth
+                //ParseAuth(realTimeReq.downloadHandler.text);
+            }
+            else
+            {
+                print("Refresh error " + realTimeReq.error);
+            }
+            yield return new WaitForSeconds(15);
+        }
+    }
+
+    /* Requests new access token
 	 * 
 	 */
-	private IEnumerator RequestToken(){
+    private IEnumerator RequestToken(){
 		//Create and send auth request to Hexoskin
 		print("Creating auth request");
 		WWWForm refreshForm = new WWWForm ();
@@ -82,7 +132,7 @@ public class API : MonoBehaviour {
 			print("Auth Success");
 			print(refreshReq.downloadHandler.text);
 			//Parse response for auth
-			parseAuth(refreshReq.downloadHandler.text);
+			ParseAuth(refreshReq.downloadHandler.text);
 		}
 		else{
 			print("Refresh error " + refreshReq.error);
