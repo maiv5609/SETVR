@@ -68,7 +68,7 @@ public class API : MonoBehaviour {
     /* Makes a request for realtime data
      * Called with the assumption that there is a valid auth token
      * Requests should ask for 15 seconds of data every 15 seconds
-     * https://api.hexoskin.com/api/data/?user=14052&datatype=19&start=392531420416&end=392541193472
+     * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
      */
     private IEnumerator RealTimeRequest(){
         //Have to use while true with a sleep in order to continuing calling every 15 seconds
@@ -81,7 +81,8 @@ public class API : MonoBehaviour {
             int endHexoTime = endTime * 256;
 
             //Build request url
-            String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime + "&end=" + endHexoTime;
+            //This request will return a flat array of values without timestamps for the requested datatype
+            String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime + "&end=" + endHexoTime + "&flat=1&no_timestamps=exact";
 
             UnityWebRequest realTimeReq = UnityWebRequest.Get(realTimeReqURI);
             realTimeReq.SetRequestHeader("Authorization", "Bearer " + AUTHTOKEN);
