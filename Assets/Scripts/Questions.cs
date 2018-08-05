@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public class Questions : MonoBehaviour {
 	//Metrics
 	private string filePath;
-	private int pauses; 
+	private int pauses;
+    private int objectsGrabbed;
 	private StreamWriter writer;
 	private Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
 	private Stopwatch responseLength = new Stopwatch(); //Times 
@@ -273,6 +274,15 @@ public class Questions : MonoBehaviour {
 		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.1f);
 	}
 
+    /* Called when the user grabs anything on the interviewer's desk
+     * 
+     */
+    public void GrabbedObject(){
+        //TODO: Display a notification or play a sound clip when grabbing objects on the desk
+        objectsGrabbed++;
+    }
+
+    //TODO
 	void OnApplicationQuit(){
 		timeline.Stop ();
 		if (Microphone.devices.Length != 0) {
@@ -282,7 +292,14 @@ public class Questions : MonoBehaviour {
 			//SavWav.Save ("microphoneInputTest", microphoneInput);
 		}
 		print ("Total Questions Interrupted: " + interruptCounter);
-		//This closes the file
-		writer.Close ();
+        writer.WriteLine("Interrupts");
+        writer.WriteLine(interruptCounter);
+        writer.WriteLine("Pauses");
+        writer.WriteLine(pauses);
+        writer.WriteLine("Objects grabbed");
+        writer.WriteLine(objectsGrabbed);
+        writer.Flush();
+        //This closes the file
+        writer.Close ();
 	}
 }
