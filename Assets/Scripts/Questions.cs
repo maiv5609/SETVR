@@ -30,7 +30,7 @@ public class Questions : MonoBehaviour {
 
 	//User Mic Input
 	public float sensitivity;
-	public int silenceTime;
+	private int silenceTime;
 	private int interruptCounter = 0;
 	private Stopwatch stopwatch = new Stopwatch (); //used to detect slience
 	private AudioClip microphoneInput;

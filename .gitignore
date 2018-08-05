@@ -5,6 +5,7 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 Assets/*
+Assetsmetrics.csv
 
 #Include these files
 !/Assets/EnvScene.unity
