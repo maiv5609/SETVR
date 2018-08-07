@@ -5,9 +5,8 @@ using Newtonsoft;
 using System.IO;
 
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
-
-//TODO: Work on realtime request and switching starting timestamp to last available timestamp from previous request
 
 public class API : MonoBehaviour {
     public int USERID;
@@ -22,6 +21,11 @@ public class API : MonoBehaviour {
 	private ulong currentTime;
 	private ulong endTime;
 
+	//Icons for Stress
+	public Image RIcon; 
+	public Image YIcon;
+	public Image GIcon;
+
 	/* Container class for auth token
      * 
      */
@@ -34,17 +38,23 @@ public class API : MonoBehaviour {
 		public string scope { get; set; }
 	}
 
+	public class RealtimeResponse
+	{
+		public string datatype { get; set; }
+		public int[] data { get; set; }
+	}
+
     //Main function
     public void Request(){
-//		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-//		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
-//		startTime = secondsSinceEpoch;
-//		currentTime = secondsSinceEpoch;
-//
-//		print (currentTime);
-//		print (currentTime * 256);
+        //		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+        //		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
+        //		startTime = secondsSinceEpoch;
+        //		currentTime = secondsSinceEpoch;
+        //
+        //		print (currentTime);
+        //		print (currentTime * 256);
 
-        StartCoroutine(RequestToken());
+       StartCoroutine(RequestToken());
     }
 
     /* Requesting Functions */
@@ -54,9 +64,7 @@ public class API : MonoBehaviour {
 	 */
     private IEnumerator RequestToken(){
 		bool auth = false;
-
 		//Create and send auth request to Hexoskin
-		//print("Creating auth request");
 		WWWForm refreshForm = new WWWForm ();
 		refreshForm.AddField("username", "webert3@wwu.edu");
 		refreshForm.AddField("password", "neat_lab_2018");
@@ -94,13 +102,15 @@ public class API : MonoBehaviour {
      * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
      */
 	private IEnumerator RealTimeRequest(){
-		String filePath = Application.dataPath + "RR.csv";
+		String filePath = Application.dataPath + "\\RR.csv";
 		StreamWriter writer = new StreamWriter (filePath);
 		//Set current timestamp for realtime request, need to multiply this by 256 before request
 		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
 		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
 		startTime = secondsSinceEpoch;
 		currentTime = secondsSinceEpoch;
+		float valueAvg;
+		int numValues;
 
 		//Get data from 30 seconds ago
 		startTime = startTime - 15;
@@ -122,7 +132,7 @@ public class API : MonoBehaviour {
 			//Build request url 18
 			//This request will return a flat array of values without timestamps for the requested datatype
 			String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime + "&end=" + endHexoTime + "&no_timestamps=exact";
-			print (realTimeReqURI);
+			//print (realTimeReqURI);
 			//https://api.hexoskin.com/api/data/?user=14159&datatype=18&start=392579598592&end=392579602432&flat=1&no_timestamps=exact
 			//"
 			using (UnityWebRequest realTimeReq = UnityWebRequest.Get (realTimeReqURI)) {
@@ -138,10 +148,33 @@ public class API : MonoBehaviour {
 					print(realTimeReq.downloadHandler.text);
 				}
 				else{
-					//  print("Response Text");
-					print(realTimeReq.downloadHandler.text);
+					valueAvg = 0.0f;
+					numValues = 0;
+
 					string output = realTimeReq.downloadHandler.text;
-					print ("Write: " + output);
+					string temp;
+					Newtonsoft.Json.JsonReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(output));
+					while (reader.Read ()) {
+						if (reader.Value != null && reader.TokenType.ToString() == "Float") {
+							temp = reader.Value.ToString ();
+							valueAvg = valueAvg + float.Parse (temp);
+							numValues++;
+						}
+					}
+					valueAvg = valueAvg / numValues;
+
+					//Adjust HUD
+					if(valueAvg <= 0.4){
+						//Red
+						//Icon.CrossFadeAlpha(1, 2.0f, false);
+					} else if (valueAvg > 0.4 && valueAvg <= 0.55){
+						//Yellow
+						//Icon.CrossFadeAlpha(0, 0.5f, false);
+					}else {
+						//Green
+						//Icon.CrossFadeAlpha(0, 0.5f, false);
+					}
+
 					writer.WriteLine (output);
 					writer.Flush ();
 				}
