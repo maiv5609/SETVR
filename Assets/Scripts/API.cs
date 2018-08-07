@@ -175,6 +175,8 @@ public class API : MonoBehaviour {
 						//Icon.CrossFadeAlpha(0, 0.5f, false);
 					}
 
+					print (valueAvg);
+             
 					writer.WriteLine (output);
 					writer.Flush ();
 				}
