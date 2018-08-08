@@ -26,10 +26,17 @@ public class API : MonoBehaviour {
 	public Image YIcon;
 	public Image GIcon;
 
-	/* Container class for auth token
+    private void Awake() {
+        //Initial UI
+        GIcon.CrossFadeAlpha(1, 1.0f, false);
+        YIcon.CrossFadeAlpha(0, 0.1f, false);
+        RIcon.CrossFadeAlpha(0, 0.1f, false);
+    }
+
+    /* Container class for auth token
      * 
      */
-	public class AuthResponse
+    public class AuthResponse
 	{
 		public string access_token { get; set; }
 		public string token_type { get; set; }
@@ -46,6 +53,7 @@ public class API : MonoBehaviour {
 
     //Main function
     public void Request(){
+        //TODO: Remove this
         //		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
         //		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
         //		startTime = secondsSinceEpoch;
@@ -54,7 +62,7 @@ public class API : MonoBehaviour {
         //		print (currentTime);
         //		print (currentTime * 256);
 
-       StartCoroutine(RequestToken());
+        //StartCoroutine(RequestToken());
     }
 
     /* Requesting Functions */
@@ -102,7 +110,7 @@ public class API : MonoBehaviour {
      * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
      */
 	private IEnumerator RealTimeRequest(){
-		String filePath = Application.dataPath + "\\RR.csv";
+		String filePath = Application.dataPath + "/RR.csv";
 		StreamWriter writer = new StreamWriter (filePath);
 		//Set current timestamp for realtime request, need to multiply this by 256 before request
 		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
@@ -165,15 +173,21 @@ public class API : MonoBehaviour {
 
 					//Adjust HUD
 					if(valueAvg <= 0.4){
-						//Red
-						//Icon.CrossFadeAlpha(1, 2.0f, false);
-					} else if (valueAvg > 0.4 && valueAvg <= 0.55){
-						//Yellow
-						//Icon.CrossFadeAlpha(0, 0.5f, false);
-					}else {
-						//Green
-						//Icon.CrossFadeAlpha(0, 0.5f, false);
-					}
+                        //Red
+                        GIcon.CrossFadeAlpha(0, 1.0f, false);
+                        YIcon.CrossFadeAlpha(0, 1.0f, false);
+                        RIcon.CrossFadeAlpha(1, 2.0f, false);
+                    } else if (valueAvg > 0.4 && valueAvg <= 0.55){
+                        //Yellow
+                        GIcon.CrossFadeAlpha(0, 1.0f, false);
+                        YIcon.CrossFadeAlpha(1, 2.0f, false);
+                        RIcon.CrossFadeAlpha(0, 1.0f, false);
+                    } else {
+                        //Green
+                        GIcon.CrossFadeAlpha(1, 2.0f, false);
+                        YIcon.CrossFadeAlpha(0, 1.0f, false);
+                        RIcon.CrossFadeAlpha(0, 1.0f, false);
+                    }
 
 					print (valueAvg);
              

@@ -16,6 +16,8 @@ public class Gaze : MonoBehaviour {
 	private float startDistracted;
 	float currCountdownValue;
 
+    public Questions Questions;
+
 	//Variables for fading UI based on eye contact
 	public Image Icon; //Attach an image you want to fade in the GameObject's Inspector
 	bool fading; //Use this to tell if the toggle returns true or false
@@ -82,7 +84,8 @@ public class Gaze : MonoBehaviour {
 	public void changeFade(bool fade){
 		//If fading is true, fade in Gaze Indicator
 		if (fade == true) {
-			Icon.CrossFadeAlpha(1, 2.0f, false);
+            GameObject.Find("Player").GetComponent<Questions>().AddAlert("Gaze");
+            Icon.CrossFadeAlpha(1, 2.0f, false);
 		}
 		//If fading is false, fade out Gaze Indicator
 		else if (fade == false) {
