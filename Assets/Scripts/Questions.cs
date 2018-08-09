@@ -55,6 +55,7 @@ public class Questions : MonoBehaviour {
     private AudioClip microphoneInput;
 	private bool userAnswered = false;
 	private bool interrupted = false;
+    private bool pauseLock = false;
 
 	//Recording Clips
 	private AudioClip currentClip;
@@ -199,20 +200,27 @@ public class Questions : MonoBehaviour {
 
 					level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
 					TimeSpan ts = silence.Elapsed;
-					//print ("Total time of silence " + ts.TotalSeconds);
 
 					if (level > sensitivity) {
-						silence.Reset ();
+                        if (!pauseLock && (2 <= ts.Seconds && 5 > ts.Seconds))  {
+                            pauses++;
+                            pauseLock = true;
+                            print("Silence Time: " + ts.TotalSeconds);
+                            AddAlert("Pause");
+                        }
+                        silence.Reset ();
 					} else {
-						//If x seconds of silence has passed, continue
-						if (!clipRecorded && userAnswered && ts.TotalSeconds >= silenceTime) {
-							stopAudioClip ();
+                        if (1 <= ts.Seconds && pauseLock){
+                            pauseLock = false;
+                            print("Pause unlocked");
+                        }
+                        //If x seconds of silence has passed, continue
+                        if (!clipRecorded && userAnswered && ts.Seconds >= silenceTime) {
+                            pauseLock = false;
+                            stopAudioClip ();
 							nextQuestion ();
 						}
-						if (3 >= silenceTime) {
-							pauses++;
-                            AddAlert("Pause");
-						}
+						
 					}
 				}
 			}
@@ -252,7 +260,7 @@ public class Questions : MonoBehaviour {
 		responseLength.Stop ();
 		TimeSpan responseTimespan = responseLength.Elapsed;
 		responseLength.Reset();
-        responseLengths.WriteLine (responseTimespan.TotalMinutes.ToString(), responseTimespan.TotalSeconds.ToString());
+        responseLengths.WriteLine (responseTimespan.Minutes.ToString(), responseTimespan.Seconds.ToString());
 		//SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
 	}
 
@@ -336,7 +344,7 @@ public class Questions : MonoBehaviour {
             objectsGrabbed++;
         }
         TimeSpan time = timeline.Elapsed;
-        alerts.WriteLine(alertType + ", " + time.TotalMinutes + ":" + time.TotalSeconds);
+        alerts.WriteLine(alertType + ", " + time.Minutes + ":" + time.Seconds);
     }
 
     //TODO
