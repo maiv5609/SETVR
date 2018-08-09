@@ -38,15 +38,16 @@ public class Questions : MonoBehaviour {
 	private List<string> phase2 = new List<string>();
 	private List<string> phase3 = new List<string>();
 	private bool endQuestions = false;
+    private int currQuestion = 1;
 
-	//Audioclip for interviewer responses
-	private int voiceSampleSize;
+    //Audioclip for interviewer responses
+    private int voiceSampleSize;
 	private AudioClip response;
 
 	//User Mic Input
-	public float sensitivity; //Used for detecting talking in general
-    public float upperSensitivity; //Upper bound on volume
-    public float lowerSensitivity; //Lower bound on volume
+	public float sensitivity; //Used for detecting talking in general, default 0.1
+    public float upperSensitivity; //Upper bound on volume, default .6 or .7
+    public float lowerSensitivity; //Lower bound on volume, default .3
     private int silenceTime;
 	private int interruptCounter = 0;
 	private Stopwatch silence = new Stopwatch (); //used to detect slience
@@ -60,10 +61,17 @@ public class Questions : MonoBehaviour {
 	private bool clipRecorded = false;
 	private int clipCounter = 0;
 
-	// Called when object has been initialized by Unity
-	void Awake () {
+    public Image loud;
+    private Stopwatch loudWatch = new Stopwatch();
+
+
+    // Called when object has been initialized by Unity
+    void Awake () {
+        //Inital UI
+        loud.CrossFadeAlpha(0, 0.1f, false);
+
         //Create csv files for metrics
-		questionResponses = new StreamWriter (Application.dataPath + "/Resources/responseTimestamps.csv");
+        questionResponses = new StreamWriter (Application.dataPath + "/Resources/responseTimestamps.csv");
         responseLengths = new StreamWriter(Application.dataPath + "/Resources/responseLengths.csv");
         alerts = new StreamWriter(Application.dataPath + "/Resources/alerts.csv");
         miscMetrics = new StreamWriter(Application.dataPath + "/Resources/miscMetrics.csv");
@@ -75,6 +83,9 @@ public class Questions : MonoBehaviour {
 		path = Application.dataPath;
 		silenceTime = 5;
 		
+        /* This will be used for UI in the random pool questions, but will not be needed for the study
+         * 
+         * 
 		//Read in phase 1 questions
 		System.IO.StreamReader file = new System.IO.StreamReader(path + "/Resources/Questions/Phase1.txt");
 		while((line = file.ReadLine()) != null){
@@ -90,11 +101,11 @@ public class Questions : MonoBehaviour {
 		while((line = file.ReadLine()) != null){
 			phase3.Add(line);
 		}	
+        *
+        * 
+        */
 
 		/* Setup mic detection for user */
-        //TODO: remove this
-		sensitivity = 0.3f; // Sensitivity for mic input
-
 		if (Microphone.devices.Length == 0) {
 			//pause and ask user to plug in mic
 			print("no microphone plugged in");
@@ -107,6 +118,11 @@ public class Questions : MonoBehaviour {
 		clipRecorded = true;
 		Invoke ("nextQuestion", 4); 
 	}
+
+    void volAlert(Image icon) {
+        
+        
+    }
 
 	// Update is called once per frame
 	void Update () {
@@ -129,17 +145,16 @@ public class Questions : MonoBehaviour {
 
 			float level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
 
-			//Mic input is louder than set lower bound for volume 
-			if (level > lowerSensitivity) {
-                if(level < sensitivity) {
-                    //User is speaking too softly
-                    //Fade image in, wait a bit, fade out
-                }else if (level > upperSensitivity) {
+            if (level > sensitivity) {
+                if (level > upperSensitivity) {
                     //User is speaking too loudly
-                    //Fade image in, wait a bit, fade out
+                    if (!loudWatch.IsRunning){
+                        print("Loud start");
+                        AddAlert("High");
+                        loudWatch.Start();
+                        loud.CrossFadeAlpha(1, 0.5f, false);
+                    }
                 }
-
-                //TODO: Start stop watch and stop it when they stop speaking
 
                 //Check if interviewer is talking (find the temp audiosource gameobject)
                 if (GameObject.Find ("One shot audio") && !interrupted) {
@@ -156,8 +171,15 @@ public class Questions : MonoBehaviour {
 
 				//print ("Level: " + level);
 			} else {
-				//User is not speaking
-				if (userAnswered && GameObject.Find ("One shot audio") == null) {
+                //Check UI timers
+                if (loudWatch.IsRunning && loudWatch.Elapsed.Seconds > 3){
+                    print("Loud end");
+                    loud.CrossFadeAlpha(0, 0.5f, false);
+                    loudWatch.Reset();
+                    loudWatch.Stop();
+                }
+                //User is not speaking
+                if (userAnswered && GameObject.Find ("One shot audio") == null) {
 					//Audio has been recorded and User has answered the question 
 					//Check for silence
 					silence.Start();
@@ -196,13 +218,6 @@ public class Questions : MonoBehaviour {
 			}
 		}
 	}
-
-    /* Saves timestamp of user either speaking too loudly or softly
-     * high is false if the user is speaking too softly and true if they are speaking too loudly
-     */
-    void volumeTimestamp(bool high){
-        
-    }
 
 	/* Saves timestamp of answered question to csv
 	 * Format of csv: minute, second
@@ -247,8 +262,6 @@ public class Questions : MonoBehaviour {
 	 * 
 	 */
 	public void nextQuestion(){
-		int currIndex = 0;
-
 		if (interrupted) {
 			interruptCounter++;
 			print ("User Interrupted: " + interruptCounter);
@@ -261,9 +274,20 @@ public class Questions : MonoBehaviour {
 			//Reset detection flags
 			clipRecorded = false;
 			userAnswered = false;
-			System.Random genRand = new System.Random();
-			//phase 1 questions
+
+            InterviewerSpeak(currQuestion);
+            currQuestion++;
+
+            if(currQuestion == 9) {
+                endQuestions = true;
+            }
+
+            /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
+             * 
+             * 
+            System.Random genRand = new System.Random();
 			if (index1 == 0){
+                //phase 1 questions
 				GameObject.Find("QuestionText").GetComponent<Text>().text = " Current Question: " + phase1[0];
 				InterviewerSpeak(1, 1);
 				phase1.RemoveAt(0);
@@ -288,22 +312,22 @@ public class Questions : MonoBehaviour {
 				GameObject.Find("QuestionText").GetComponent<Text>().text = "End of Questions";
 				endQuestions = true;
 			}
-		}
-	}
+            *
+            *
+            */
+        }
+    }
 
 	/* Takes in current interview phase and selected question
 	 * Plays selected audio clip for question
+     * Currently adjusted to have a structured series of questions
 	 */
-	void InterviewerSpeak(int phase, int question){
-		//TODO: Test out pausing audio clip in response to the user speaking, track number of pauses.
-		//Explore alternative responses to the user talking while the interviewer is speaking.
-		response = Resources.Load<AudioClip>("QuestionAudio/P" + phase+ "Q" + question);
-		
+	void InterviewerSpeak(int question){
+		response = Resources.Load<AudioClip>("QuestionAudio/Q" + question);
+        print("Question: " + question);
 		//Record timestamp to csv
 		TimeSpan time = timeline.Elapsed;
 		questionTimestamp ((int)time.TotalMinutes, (int)time.TotalSeconds); 
-		//void saveTimestamp (int phase, int question, int minute, int second)
-		//AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11));
 		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.1f);
 	}
 
@@ -317,14 +341,6 @@ public class Questions : MonoBehaviour {
 
     //TODO
 	void OnApplicationQuit(){
-		timeline.Stop ();
-		if (Microphone.devices.Length != 0) {
-			//Save Audio to file
-
-			//TODO: uncomment this in final build
-			//SavWav.Save ("microphoneInputTest", microphoneInput);
-		}
-		print ("Total Questions Interrupted: " + interruptCounter);
         miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
         miscMetrics.WriteLine("Pauses, " + pauses);
         miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
@@ -336,5 +352,14 @@ public class Questions : MonoBehaviour {
         responseLengths.Close();
         alerts.Close();
         miscMetrics.Close ();
-	}
+
+        timeline.Stop();
+        if (Microphone.devices.Length != 0)
+        {
+            //Save Audio to file
+
+            //TODO: uncomment this in final build
+            SavWav.Save("userAudio", microphoneInput);
+        }
+    }
 }
