@@ -10,6 +10,7 @@ Assets/Resources/*.meta
 
 #Include these files
 !/Assets/EnvScene.unity
+!/Assets/Post.unity
 !/Assets/Setup.unity
 
 !/Assets/Scripts
