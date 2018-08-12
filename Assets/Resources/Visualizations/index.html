@@ -12,15 +12,12 @@
   body {
     font-family: "Roboto", sans-serif
   }
-  .w3-bar-block .w3-bar-item {
+  .w3-bar-block {
     padding: 16px;
     font-weight: bold
   }
   
-  .tick {
-      visibility:hidden;
-    }
-    
+ 
 </style>
 
 <body>
@@ -30,46 +27,27 @@
       <h1 class="w3-xxxlarge">Your Simulation Data</h1>
     </header>
 
-    <div class="w3-container" style="padding:32px">
+    <div class="w3-container" style="padding:25px">
 	  <div id="questionContainer">
-        <script type="text/javascript">
-         var cleanAxis;
+         <script type="text/javascript">
           function draw(data) {
-          
-          cleanAxis = function (axis, oneInEvery) {
-    // This should have been called after draw, otherwise do nothing
-			if (axis.shapes.length > 0) {
-				// Leave the first label
-				var del = 0;
-				// If there is an interval set
-				if (oneInEvery > 1) {
-				    // Operate on all the axis text
-				    axis.shapes.selectAll("text").each(function (d) {
-				        d3.select(this).attr("opacity", 1);
-				        // Remove all but the nth label
-				        if (del % oneInEvery !== 0) {
-				            d3.select(this).attr("opacity", 0);
-				        }
-				        del += 1;
-				    });
-				}
-			}
-		};
-          
-            var svg = dimple.newSvg("#questionContainer", 800, 180);
+            var svg = dimple.newSvg("#questionContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 0, 710, 160)
-            var x = myChart.addMeasureAxis("x", "Time");
-            var y = myChart.addMeasureAxis("y", "Question Timestamps");
-            var z = myChart.addSeries(null, dimple.plot.bubble);
+            myChart.setBounds(60, 10, 710, 140)
+            var x = myChart.addCategoryAxis("x", "time");
+            x.addOrderRule("time", false);
+            var y = myChart.addMeasureAxis("y", "question");
+            var s = myChart.addSeries(null, dimple.plot.bubble);
+           // s.afterDraw = function () { cleanAxis(x, 10); };
+           // myChart.addLegend(160, 10, 310, 20, "right");
             myChart.defaultColors = [
 				new dimple.color("#000000")
 			]; 
             myChart.draw();
           };
           
-          d3.csv("/CSV/ecg.csv", draw);
+          d3.csv("responseTimestamps.csv", draw);
         </script>
       </div>
       <div id="simpleLineChartContainer">
@@ -103,7 +81,7 @@
             myChart.setBounds(60, 0, 710, 170)
             var x = myChart.addCategoryAxis("x", "time");
             x.addOrderRule("time", false);
-            var y = myChart.addMeasureAxis("y", "RR Interval");
+            var y = myChart.addMeasureAxis("y", "heartrate");
            // y.overrideMin = 40;
             var s = myChart.addSeries(null, dimple.plot.line);
             s.afterDraw = function () { cleanAxis(x, 10); };
@@ -114,7 +92,7 @@
             myChart.draw();
           };
           
-          d3.csv("/CSV/ecg.csv", draw);
+          d3.csv("ecg.csv", draw);
         </script>
       </div>
       <div id="curvyLineChartContainer">
@@ -137,16 +115,16 @@
 			]; 
             myChart.draw();
           };
-          d3.csv("/CSV/breath.csv", draw);
+          d3.csv("breath.csv", draw);
         </script>
       </div>
 	  <div id="barChartContainer">
         <script type="text/javascript">
           var svg = dimple.newSvg("#barChartContainer", 800, 180);
-          d3.csv("/CSV/speech.csv", function (data) {
+          d3.csv("speech.csv", function (data) {
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addMeasureAxis("x", "");
+            var x = myChart.addMeasureAxis("x", "value");
             x.addOrderRule("order", true);
             //x.addOrderRule("Date");
             var y= myChart.addCategoryAxis("y", "speech");
@@ -204,7 +182,7 @@
             myChart.setBounds(60, 0, 710, 170)
             var x = myChart.addCategoryAxis("x", "time");
             x.addOrderRule("time", false);
-            var y = myChart.addMeasureAxis("y", "heartrate");
+            var y = myChart.addMeasureAxis("y", "Alerts");
            // y.overrideMin = 40;
             var s = myChart.addSeries(null, dimple.plot.line);
             s.afterDraw = function () { cleanAxis(x, 10); };
@@ -212,10 +190,11 @@
             myChart.defaultColors = [
 				new dimple.color("#000000")
 			]; 
+			
             myChart.draw();
           };
           
-          d3.csv("/CSV/ecg.csv", draw);
+          d3.csv("ecg.csv", draw);
         </script>
       </div>
     </div>

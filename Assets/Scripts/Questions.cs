@@ -222,11 +222,14 @@ public class Questions : MonoBehaviour {
 		}
 	}
 
-	/* Saves timestamp of answered question to csv
-	 * Format of csv: minute, second
+    /* Saves timestamp of answered question to csv
+	 * Format of csv: minutes, questionNumber
+     * { "key": 4, "xval":16, "yval":50 }
 	 */
-	void questionTimestamp (int minute, int second){
-        questionResponses.WriteLine (minute.ToString() + "," + second.ToString());
+
+    void questionTimestamp (int minute, int second){
+        double temp = (double)minute + ((double)second / 60);
+        questionResponses.WriteLine ("xval:" + currQuestion + ", yval: " + temp);
         questionResponses.Flush ();
 	}
 
@@ -244,7 +247,7 @@ public class Questions : MonoBehaviour {
 	}
 
 	/* Stops currently recording clip and flips flag
-	 * Format of csv: minute, second
+	 * Format of csv: minute, questionNumber
 	 */
 	public void stopAudioClip(){
 		clipRecorded = true;
@@ -255,7 +258,8 @@ public class Questions : MonoBehaviour {
 		responseLength.Stop ();
 		TimeSpan responseTimespan = responseLength.Elapsed;
 		responseLength.Reset();
-        responseLengths.WriteLine (responseTimespan.Minutes.ToString(), responseTimespan.Seconds.ToString());
+        double temp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
+        responseLengths.WriteLine (temp.ToString(), currQuestion);
 		//SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
 	}
 

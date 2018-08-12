@@ -7,7 +7,7 @@ Assets/AssetStoreTools*
 Assets/*
 Assetsmetrics.csv
 Assets/Resources/*.meta
-
+Assets/Resources/Visualizations/
 
 #Include these files
 !/Assets/EnvScene.unity
