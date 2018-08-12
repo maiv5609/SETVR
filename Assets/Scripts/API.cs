@@ -110,8 +110,9 @@ public class API : MonoBehaviour {
      * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
      */
 	private IEnumerator RealTimeRequest(){
-		String filePath = Application.dataPath + "/Resources/Visualizations/CSV/RR.csv";
+		String filePath = Application.dataPath + "/Resources/Visualizations/RR.csv";
 		StreamWriter writer = new StreamWriter (filePath);
+        writer.WriteLine("Time, Interval");
 		//Set current timestamp for realtime request, need to multiply this by 256 before request
 		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
 		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;

@@ -72,10 +72,16 @@ public class Questions : MonoBehaviour {
         loud.CrossFadeAlpha(0, 0.1f, false);
 
         //Create csv files for metrics
-        questionResponses = new StreamWriter (Application.dataPath + "/Resources/Visualizations/CSV/responseTimestamps.csv");
-        responseLengths = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/responseLengths.csv");
-        alerts = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/alerts.csv");
-        miscMetrics = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/miscMetrics.csv");
+        questionResponses = new StreamWriter (Application.dataPath + "/Resources/Visualizations/responseTimestamps.csv");
+        responseLengths = new StreamWriter(Application.dataPath + "/Resources/Visualizations/responseLengths.csv");
+        alerts = new StreamWriter(Application.dataPath + "/Resources/Visualizations/alerts.csv");
+        miscMetrics = new StreamWriter(Application.dataPath + "/Resources/Visualizations/miscMetrics.csv");
+
+        //Formats for each of the csv's
+        questionResponses.WriteLine("Question,Timestamp (Minutes)");
+        responseLengths.WriteLine("order,speech,value,slot");
+        alerts.WriteLine("Alert, Timestamp (Minutes)");
+        miscMetrics.WriteLine("Metric");
 
         timeline.Start ();
 		/* Reading in Questions */
@@ -256,12 +262,16 @@ public class Questions : MonoBehaviour {
 		//Save Audio to file
 		print ("clipRecorded = true");
 		responseLength.Stop ();
-		TimeSpan responseTimespan = responseLength.Elapsed;
+        TimeSpan timestamp = timeline.Elapsed; //Timestamp
+		TimeSpan responseTimespan = responseLength.Elapsed; //Time spent talking
 		responseLength.Reset();
-        double temp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
-        responseLengths.WriteLine (temp.ToString(), currQuestion);
-		//SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
-	}
+        double stampTemp = (double)timestamp.Minutes + ((double)timestamp.Seconds / 60);
+        double timeTemp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
+        string slot = (currQuestion - 1).ToString();
+        responseLengths.WriteLine (stampTemp + ",1,"  + timeTemp.ToString() + ",slot" + stampTemp);
+        responseLengths.Flush();
+        //SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
+    }
 
 
 

@@ -35,9 +35,9 @@
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 10, 710, 140)
-            var x = myChart.addCategoryAxis("x", "time");
-            x.addOrderRule("time", false);
-            var y = myChart.addMeasureAxis("y", "question");
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+			x.overrideMax = 15; //20 minute max
+            var y = myChart.addCategoryAxis("y", "Question");
             var s = myChart.addSeries(null, dimple.plot.bubble);
            // s.afterDraw = function () { cleanAxis(x, 10); };
            // myChart.addLegend(160, 10, 310, 20, "right");
@@ -79,9 +79,9 @@
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addCategoryAxis("x", "time");
-            x.addOrderRule("time", false);
-            var y = myChart.addMeasureAxis("y", "heartrate");
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+			x.overrideMax = 15; //20 minute max
+            var y = myChart.addMeasureAxis("y", "Interval");
            // y.overrideMin = 40;
             var s = myChart.addSeries(null, dimple.plot.line);
             s.afterDraw = function () { cleanAxis(x, 10); };
@@ -92,7 +92,7 @@
             myChart.draw();
           };
           
-          d3.csv("ecg.csv", draw);
+          d3.csv("RR.csv", draw);
         </script>
       </div>
       <div id="curvyLineChartContainer">
@@ -120,31 +120,29 @@
       </div>
 	  <div id="barChartContainer">
         <script type="text/javascript">
-          var svg = dimple.newSvg("#barChartContainer", 800, 180);
-          d3.csv("speech.csv", function (data) {
+          var svg = dimple.newSvg("#barChartContainer", 800, 200);
+          d3.csv("responseLengths.csv", function (data) {
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
             var x = myChart.addMeasureAxis("x", "value");
-            x.addOrderRule("order", true);
-            //x.addOrderRule("Date");
+            x.overrideMax = 15;
             var y= myChart.addCategoryAxis("y", "speech");
             y.overrideMax = 1.5;
             myChart.addSeries("slot", dimple.plot.bar);
             //myChart.addLegend(160, 10, 510, 20, "right");
             myChart.defaultColors = [
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff"),
 				new dimple.color("#000000"),
-				new dimple.color("#ffffff")
+				new dimple.color("#000000"),
+				new dimple.color("#000000"),
+				new dimple.color("#000000"),
+				new dimple.color("#000000"),
+				new dimple.color("#000000"),
+				new dimple.color("#000000"),
 			]; 
             
             myChart.draw();
@@ -180,8 +178,8 @@
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addCategoryAxis("x", "time");
-            x.addOrderRule("time", false);
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+			x.overrideMax = 15; //20 minute max
             var y = myChart.addMeasureAxis("y", "Alerts");
            // y.overrideMin = 40;
             var s = myChart.addSeries(null, dimple.plot.line);
