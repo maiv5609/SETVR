@@ -75,7 +75,7 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 180);
+            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 175);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
@@ -98,14 +98,14 @@
       <div id="curvyLineChartContainer">
         <script type="text/javascript">
           function draw(data) {
-            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 180);
+            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 175);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
             var x = myChart.addCategoryAxis("x", "time");
             x.addOrderRule("time", false);
             var y = myChart.addMeasureAxis("y", "breath");
-            y.overrideMin = 0;
+            y.overrideMin = 20;
             var s = myChart.addSeries(null, dimple.plot.line);
             s.afterDraw = function () { cleanAxis(x, 10); };
             s.interpolation = "cardinal";
@@ -120,16 +120,15 @@
       </div>
 	  <div id="barChartContainer">
         <script type="text/javascript">
-          var svg = dimple.newSvg("#barChartContainer", 800, 200);
+          var svg = dimple.newSvg("#barChartContainer", 800, 220);
           d3.csv("responseLengths.csv", function (data) {
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addMeasureAxis("x", "value");
+            myChart.setBounds(60, 10, 710, 170)
+            var x = myChart.addCategoryAxis("x", "Timestamp (Minutes)");
+			x.addOrderRule("Timestamp (Minutes)", false);
             x.overrideMax = 15;
-            var y= myChart.addCategoryAxis("y", "speech");
-            y.overrideMax = 1.5;
-            myChart.addSeries("slot", dimple.plot.bar);
-            //myChart.addLegend(160, 10, 510, 20, "right");
+            var y= myChart.addMeasureAxis("y", "Time Spent Talking");
+            myChart.addSeries(null, dimple.plot.bar);
             myChart.defaultColors = [
 				new dimple.color("#000000"),
 				new dimple.color("#000000"),
