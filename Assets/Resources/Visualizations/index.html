@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+<link rel="stylesheet" href="css/w3.css">
+<link rel="stylesheet" href="css/w3-theme-teal.css">
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+  body {
+    font-family: "Roboto", sans-serif
+  }
+  .w3-bar-block .w3-bar-item {
+    padding: 16px;
+    font-weight: bold
+  }
+  
+  .tick {
+      visibility:hidden;
+    }
+    
+</style>
+
+<body>
+
+  <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" id="myOverlay"></div>
+    <header class="w3-container w3-theme" style="padding:64px 32px">
+      <h1 class="w3-xxxlarge">Your Simulation Data</h1>
+    </header>
+
+    <div class="w3-container" style="padding:32px">
+	  <div id="questionContainer">
+        <script type="text/javascript">
+         var cleanAxis;
+          function draw(data) {
+          
+          cleanAxis = function (axis, oneInEvery) {
+    // This should have been called after draw, otherwise do nothing
+			if (axis.shapes.length > 0) {
+				// Leave the first label
+				var del = 0;
+				// If there is an interval set
+				if (oneInEvery > 1) {
+				    // Operate on all the axis text
+				    axis.shapes.selectAll("text").each(function (d) {
+				        d3.select(this).attr("opacity", 1);
+				        // Remove all but the nth label
+				        if (del % oneInEvery !== 0) {
+				            d3.select(this).attr("opacity", 0);
+				        }
+				        del += 1;
+				    });
+				}
+			}
+		};
+          
+            var svg = dimple.newSvg("#questionContainer", 800, 180);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(60, 0, 710, 160)
+            var x = myChart.addMeasureAxis("x", "Time");
+            var y = myChart.addMeasureAxis("y", "Question Timestamps");
+            var z = myChart.addSeries(null, dimple.plot.bubble);
+            myChart.defaultColors = [
+				new dimple.color("#000000")
+			]; 
+            myChart.draw();
+          };
+          
+          d3.csv("/CSV/ecg.csv", draw);
+        </script>
+      </div>
+      <div id="simpleLineChartContainer">
+        <script type="text/javascript">
+         var cleanAxis;
+          function draw(data) {
+          
+          cleanAxis = function (axis, oneInEvery) {
+    // This should have been called after draw, otherwise do nothing
+			if (axis.shapes.length > 0) {
+				// Leave the first label
+				var del = 0;
+				// If there is an interval set
+				if (oneInEvery > 1) {
+				    // Operate on all the axis text
+				    axis.shapes.selectAll("text").each(function (d) {
+				        d3.select(this).attr("opacity", 1);
+				        // Remove all but the nth label
+				        if (del % oneInEvery !== 0) {
+				            d3.select(this).attr("opacity", 0);
+				        }
+				        del += 1;
+				    });
+				}
+			}
+		};
+          
+            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 180);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(60, 0, 710, 170)
+            var x = myChart.addCategoryAxis("x", "time");
+            x.addOrderRule("time", false);
+            var y = myChart.addMeasureAxis("y", "RR Interval");
+           // y.overrideMin = 40;
+            var s = myChart.addSeries(null, dimple.plot.line);
+            s.afterDraw = function () { cleanAxis(x, 10); };
+           // myChart.addLegend(160, 10, 310, 20, "right");
+            myChart.defaultColors = [
+				new dimple.color("#000000")
+			]; 
+            myChart.draw();
+          };
+          
+          d3.csv("/CSV/ecg.csv", draw);
+        </script>
+      </div>
+      <div id="curvyLineChartContainer">
+        <script type="text/javascript">
+          function draw(data) {
+            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 180);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(60, 0, 710, 170)
+            var x = myChart.addCategoryAxis("x", "time");
+            x.addOrderRule("time", false);
+            var y = myChart.addMeasureAxis("y", "breath");
+            y.overrideMin = 0;
+            var s = myChart.addSeries(null, dimple.plot.line);
+            s.afterDraw = function () { cleanAxis(x, 10); };
+            s.interpolation = "cardinal";
+            //myChart.addLegend(160, 10, 510, 20, "right");
+            myChart.defaultColors = [
+				new dimple.color("#ff0000")
+			]; 
+            myChart.draw();
+          };
+          d3.csv("/CSV/breath.csv", draw);
+        </script>
+      </div>
+	  <div id="barChartContainer">
+        <script type="text/javascript">
+          var svg = dimple.newSvg("#barChartContainer", 800, 180);
+          d3.csv("/CSV/speech.csv", function (data) {
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(60, 0, 710, 170)
+            var x = myChart.addMeasureAxis("x", "");
+            x.addOrderRule("order", true);
+            //x.addOrderRule("Date");
+            var y= myChart.addCategoryAxis("y", "speech");
+            y.overrideMax = 1.5;
+            myChart.addSeries("slot", dimple.plot.bar);
+            //myChart.addLegend(160, 10, 510, 20, "right");
+            myChart.defaultColors = [
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff"),
+				new dimple.color("#000000"),
+				new dimple.color("#ffffff")
+			]; 
+            
+            myChart.draw();
+          });
+        </script>
+      </div>
+	  <div id="alertContainer">
+        <script type="text/javascript">
+         var cleanAxis;
+          function draw(data) {
+          
+          cleanAxis = function (axis, oneInEvery) {
+    // This should have been called after draw, otherwise do nothing
+			if (axis.shapes.length > 0) {
+				// Leave the first label
+				var del = 0;
+				// If there is an interval set
+				if (oneInEvery > 1) {
+				    // Operate on all the axis text
+				    axis.shapes.selectAll("text").each(function (d) {
+				        d3.select(this).attr("opacity", 1);
+				        // Remove all but the nth label
+				        if (del % oneInEvery !== 0) {
+				            d3.select(this).attr("opacity", 0);
+				        }
+				        del += 1;
+				    });
+				}
+			}
+		};
+          
+            var svg = dimple.newSvg("#alertContainer", 800, 180);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(60, 0, 710, 170)
+            var x = myChart.addCategoryAxis("x", "time");
+            x.addOrderRule("time", false);
+            var y = myChart.addMeasureAxis("y", "heartrate");
+           // y.overrideMin = 40;
+            var s = myChart.addSeries(null, dimple.plot.line);
+            s.afterDraw = function () { cleanAxis(x, 10); };
+           // myChart.addLegend(160, 10, 310, 20, "right");
+            myChart.defaultColors = [
+				new dimple.color("#000000")
+			]; 
+            myChart.draw();
+          };
+          
+          d3.csv("/CSV/ecg.csv", draw);
+        </script>
+      </div>
+    </div>
+    <footer class="w3-container w3-theme footer" style="padding:32px" position="fixed">
+    </footer>
+  </div>
+</body>
+
+</html>

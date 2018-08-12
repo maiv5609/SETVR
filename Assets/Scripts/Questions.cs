@@ -72,10 +72,10 @@ public class Questions : MonoBehaviour {
         loud.CrossFadeAlpha(0, 0.1f, false);
 
         //Create csv files for metrics
-        questionResponses = new StreamWriter (Application.dataPath + "/Resources/responseTimestamps.csv");
-        responseLengths = new StreamWriter(Application.dataPath + "/Resources/responseLengths.csv");
-        alerts = new StreamWriter(Application.dataPath + "/Resources/alerts.csv");
-        miscMetrics = new StreamWriter(Application.dataPath + "/Resources/miscMetrics.csv");
+        questionResponses = new StreamWriter (Application.dataPath + "/Resources/Visualizations/CSV/responseTimestamps.csv");
+        responseLengths = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/responseLengths.csv");
+        alerts = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/alerts.csv");
+        miscMetrics = new StreamWriter(Application.dataPath + "/Resources/Visualizations/CSV/miscMetrics.csv");
 
         timeline.Start ();
 		/* Reading in Questions */
@@ -119,11 +119,6 @@ public class Questions : MonoBehaviour {
 		clipRecorded = true;
 		Invoke ("nextQuestion", 4); 
 	}
-
-    void volAlert(Image icon) {
-        
-        
-    }
 
 	// Update is called once per frame
 	void Update () {
@@ -344,7 +339,7 @@ public class Questions : MonoBehaviour {
             objectsGrabbed++;
         }
         TimeSpan time = timeline.Elapsed;
-        alerts.WriteLine(alertType + ", " + time.Minutes + ":" + time.Seconds);
+        alerts.WriteLine(time.Minutes + "," + time.Seconds + "," + alertType);
     }
 
     //TODO

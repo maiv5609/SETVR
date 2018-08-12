@@ -7,7 +7,7 @@ Assets/AssetStoreTools*
 Assets/*
 Assetsmetrics.csv
 Assets/Resources/*.meta
-Assets/Resources/Visualizations/
+
 
 #Include these files
 !/Assets/EnvScene.unity
@@ -18,6 +18,8 @@ Assets/Resources/Visualizations/
 !/Assets/Questions
 !/Assets/dll
 !/Assets/Resources
+!/Assets/Resources/Visualizations/index.html
+
 
 # Visual Studio 2015 cache directory
 /.vs/

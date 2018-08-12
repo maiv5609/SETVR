@@ -110,7 +110,7 @@ public class API : MonoBehaviour {
      * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
      */
 	private IEnumerator RealTimeRequest(){
-		String filePath = Application.dataPath + "/RR.csv";
+		String filePath = Application.dataPath + "/Resources/Visualizations/CSV/RR.csv";
 		StreamWriter writer = new StreamWriter (filePath);
 		//Set current timestamp for realtime request, need to multiply this by 256 before request
 		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
@@ -121,8 +121,8 @@ public class API : MonoBehaviour {
 		int numValues;
 
 		//Get data from 30 seconds ago
-		startTime = startTime - 15;
-		currentTime = currentTime - 15;
+		startTime = startTime - 30;
+		currentTime = currentTime - 30;
 
 		ulong currentHexoTime;
 		ulong endHexoTime;
@@ -196,8 +196,8 @@ public class API : MonoBehaviour {
 				}
 			}
 
-			yield return new WaitForSeconds(16);
-			currentTime = currentTime + 15;
+			yield return new WaitForSeconds(31);
+			currentTime = currentTime + 30;
 		}
 		writer.Close ();
 	}
