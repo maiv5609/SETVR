@@ -146,7 +146,7 @@ public class Questions : MonoBehaviour {
 			}
 
 			float level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
-
+			//print("Level: " + level);
             if (level > sensitivity) {
                 if (level > upperSensitivity) {
                     //User is speaking too loudly
@@ -378,7 +378,7 @@ public class Questions : MonoBehaviour {
             //Save Audio to file
 
             //TODO: uncomment this in final build
-            SavWav.Save("userAudio", microphoneInput);
+            //SavWav.Save("userAudio", microphoneInput);
         }
     }
 }
