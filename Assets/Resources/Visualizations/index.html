@@ -173,25 +173,28 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#alertContainer", 800, 180);
+            var svg = dimple.newSvg("#alertContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 0, 710, 170)
+            myChart.setBounds(70, 0, 710, 180)
             var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
-			x.overrideMax = 15; //20 minute max
-            var y = myChart.addMeasureAxis("y", "Alerts");
+            x.overrideMax = 15;
+            var y = myChart.addCategoryAxis("y", "Alert");
            // y.overrideMin = 40;
-            var s = myChart.addSeries(null, dimple.plot.line);
+            var s = myChart.addSeries(["Alert", "Timestamp (Minutes)", "Alert"], dimple.plot.bubble);
             s.afterDraw = function () { cleanAxis(x, 10); };
            // myChart.addLegend(160, 10, 310, 20, "right");
             myChart.defaultColors = [
-				new dimple.color("#000000")
+				new dimple.color("#C70039"),
+				new dimple.color("#3300C7"),
+				new dimple.color("#09C700"),
+				new dimple.color("#00C7AF"),
 			]; 
 			
             myChart.draw();
           };
           
-          d3.csv("ecg.csv", draw);
+          d3.csv("alerts.csv", draw);
         </script>
       </div>
     </div>

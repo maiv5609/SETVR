@@ -80,7 +80,7 @@ public class Questions : MonoBehaviour {
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
         responseLengths.WriteLine("Timestamp (Minutes),Time Spent Talking,value,slot");
-        alerts.WriteLine("Alert, Timestamp (Minutes)");
+        alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 
         timeline.Start ();
@@ -235,7 +235,7 @@ public class Questions : MonoBehaviour {
 
     void questionTimestamp (int minute, int second){
         double temp = (double)minute + ((double)second / 60);
-        questionResponses.WriteLine ("xval:" + currQuestion + ", yval: " + temp);
+        questionResponses.WriteLine (currQuestion + "," + temp);
         questionResponses.Flush ();
 	}
 
@@ -352,8 +352,10 @@ public class Questions : MonoBehaviour {
         if(alertType == "Grab"){
             objectsGrabbed++;
         }
-        TimeSpan time = timeline.Elapsed;
-        alerts.WriteLine(time.Minutes + "," + time.Seconds + "," + alertType);
+        TimeSpan timestamp = timeline.Elapsed;
+        double stampTemp = (double)timestamp.Minutes + ((double)timestamp.Seconds / 60);
+        alerts.WriteLine(alertType + "," + stampTemp);
+        alerts.Flush();
     }
 
     //TODO
