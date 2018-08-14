@@ -221,8 +221,7 @@ public class Questions : MonoBehaviour {
                             stopAudioClip ();
 							nextQuestion ();
 						}
-						
-					}
+                    }
 				}
 			}
 		}

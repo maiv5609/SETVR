@@ -75,17 +75,17 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 175);
+            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
-			x.overrideMax = 15; //20 minute max
-            var y = myChart.addMeasureAxis("y", "Interval");
-           // y.overrideMin = 40;
+            var x = myChart.addCategoryAxis("x", "Time");
+			x.addOrderRule("Time", false);
+			x.overrideMax = 150; //20 minute max
+			//x.overrideMin = 0;
+            var y = myChart.addCategoryAxis("y", "RR Interval");
             var s = myChart.addSeries(null, dimple.plot.line);
-            s.afterDraw = function () { cleanAxis(x, 10); };
-           // myChart.addLegend(160, 10, 310, 20, "right");
+			s.interpolation = "cardinal";
             myChart.defaultColors = [
 				new dimple.color("#000000")
 			]; 
@@ -98,16 +98,17 @@
       <div id="curvyLineChartContainer">
         <script type="text/javascript">
           function draw(data) {
-            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 175);
+            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 0, 710, 170)
-            var x = myChart.addCategoryAxis("x", "time");
-            x.addOrderRule("time", false);
-            var y = myChart.addMeasureAxis("y", "breath");
-            y.overrideMin = 20;
+            myChart.setBounds(60, 0, 710, 200)
+            var x = myChart.addMeasureAxis("x", "Time");
+            x.addOrderRule("Time", false);
+			x.overrideMax = 15; //20 minute max
+            var y = myChart.addCategoryAxis("y", "Breathing");
             var s = myChart.addSeries(null, dimple.plot.line);
-            s.afterDraw = function () { cleanAxis(x, 10); };
+            //s.afterDraw = function () { cleanAxis(x, 10); };
+			y.addOrderRule("Breathing", false);
             s.interpolation = "cardinal";
             //myChart.addLegend(160, 10, 510, 20, "right");
             myChart.defaultColors = [
@@ -115,7 +116,7 @@
 			]; 
             myChart.draw();
           };
-          d3.csv("breath.csv", draw);
+          d3.csv("Breathing.csv", draw);
         </script>
       </div>
 	  <div id="barChartContainer">

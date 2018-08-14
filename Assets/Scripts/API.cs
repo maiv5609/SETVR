@@ -256,6 +256,7 @@ public class API : MonoBehaviour {
 
                     bool next = false; //Track next value
                     double stampTemp = 0;
+                    string prevValue = null;
                     while (reader.Read())
                     {
                         if (reader.Value != null && reader.TokenType.ToString() == "Float")
@@ -275,8 +276,29 @@ public class API : MonoBehaviour {
                                 {
                                     //If timestamp if within the simulation starting
                                     stampTemp = stampTemp / 60;
-                                    writerB.WriteLine(stampTemp + "," + temp);
-                                    writerB.Flush();
+                                    prevValue = temp;
+                                    if(ulong.Parse(temp) > 10000)
+                                    {
+                                        if(ulong.Parse(prevValue) > 10000)
+                                        {
+                                            //if first value is null toss out
+
+                                        }
+                                        else
+                                        {
+                                            //If current value is null
+                                            writerB.WriteLine(stampTemp + "," + prevValue);
+                                            writerB.Flush();
+                                        }
+                                        
+                                    }
+                                    else
+                                    {
+                                        writerB.WriteLine(stampTemp + "," + temp);
+                                        writerB.Flush();
+                                    }
+
+                                    
                                 }
                                 next = false;
                             }
