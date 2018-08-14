@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class API : MonoBehaviour {
-    public int USERID;
+    public int RECORDID;
 	private const string AUTHURL = "https://api.hexoskin.com/api/connect/oauth2/token/";
 	private const string URL = "https://api.hexoskin.com/api/user";
 
@@ -150,11 +150,13 @@ public class API : MonoBehaviour {
 
             //Build request url 18
             //This request will return a flat array of values without timestamps for the requested datatype
-            String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime.ToString() + "&end=" + endHexoTime.ToString();
-            String realTimeBreathURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=33" + "&start=" + currentHexoTime.ToString() + "&end=" + endHexoTime.ToString();
+			String realTimeReqURI = "https://api.hexoskin.com/api/data/?datatype=18" + "&start=" + currentHexoTime.ToString() + "&record=" + RECORDID; //+ "&end=" + endHexoTime.ToString();
+			String realTimeBreathURI = "https://api.hexoskin.com/api/data/?datatype=33" + "&start=" + currentHexoTime.ToString() + "&record=" + RECORDID; //+ "&end=" + endHexoTime.ToString();
             //print (realTimeReqURI);
             //https://api.hexoskin.com/api/data/?user=14159&datatype=18&start=392579598592&end=392579602432&flat=1&no_timestamps=exact
-            
+
+			//Example Request without end time
+			//String realTimeReqURI = "https://api.hexoskin.com/api/data/?datatype=18&start=392688727808&record=157348";
             
             /*    Request for RR interval data     */
             using (UnityWebRequest realTimeReq = UnityWebRequest.Get (realTimeReqURI)) {
