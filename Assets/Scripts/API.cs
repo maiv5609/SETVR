@@ -16,6 +16,7 @@ public class API : MonoBehaviour {
 
 	private string AUTHTOKEN;
 	private string REFRESHTOKEN;
+	private const int delay = 60;
 
     private Stopwatch timeline = new Stopwatch(); //Timestamp tracking
 
@@ -133,7 +134,7 @@ public class API : MonoBehaviour {
 		int numValues;
 
 		//Get data from x seconds ago (Currently need to do testing beforehand to know the delay)
-		currentTime = currentTime - 60;
+		currentTime = currentTime - delay;
 
 		ulong currentHexoTime;
 		ulong endHexoTime;
@@ -195,6 +196,7 @@ public class API : MonoBehaviour {
                                 if(stampTemp > 0.0){
                                     //If timestamp if within the simulation starting
                                     stampTemp = stampTemp / 60;
+									temp = Math.Round (float.Parse(temp), 2).ToString ();
                                     writer.WriteLine(stampTemp + "," + temp);
                                     writer.Flush();
                                     valueAvg = valueAvg + float.Parse(temp);
@@ -307,8 +309,8 @@ public class API : MonoBehaviour {
                 }
             }
 
-            yield return new WaitForSeconds(60);
-			currentTime = currentTime + 60;
+			yield return new WaitForSeconds(delay);
+			currentTime = currentTime + delay;
 		}
 		writer.Close ();
 	}
