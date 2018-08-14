@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft;
+using System.Diagnostics;
 using System.IO;
 
 using UnityEngine;
@@ -13,11 +14,13 @@ public class API : MonoBehaviour {
 	private const string AUTHURL = "https://api.hexoskin.com/api/connect/oauth2/token/";
 	private const string URL = "https://api.hexoskin.com/api/user";
 
-	public string AUTHTOKEN;
-	public string REFRESHTOKEN;
+	private string AUTHTOKEN;
+	private string REFRESHTOKEN;
+
+    private Stopwatch timeline = new Stopwatch(); //Timestamp tracking
 
     //Base times for requests
-	private ulong startTime;
+    private ulong startTime;
 	private ulong currentTime;
 	private ulong endTime;
 
@@ -26,11 +29,13 @@ public class API : MonoBehaviour {
 	public Image YIcon;
 	public Image GIcon;
 
-    private void Awake() {
+	void Start(){
         //Initial UI
         GIcon.CrossFadeAlpha(1, 1.0f, false);
         YIcon.CrossFadeAlpha(0, 0.1f, false);
         RIcon.CrossFadeAlpha(0, 0.1f, false);
+        timeline.Start();
+		Request();
     }
 
     /* Container class for auth token
@@ -62,7 +67,7 @@ public class API : MonoBehaviour {
         //		print (currentTime);
         //		print (currentTime * 256);
 
-        //StartCoroutine(RequestToken());
+        StartCoroutine(RequestToken());
     }
 
     /* Requesting Functions */
@@ -111,63 +116,92 @@ public class API : MonoBehaviour {
      */
 	private IEnumerator RealTimeRequest(){
 		String filePath = Application.dataPath + "/Resources/Visualizations/RR.csv";
-		StreamWriter writer = new StreamWriter (filePath);
-        writer.WriteLine("Time, Interval");
-		//Set current timestamp for realtime request, need to multiply this by 256 before request
-		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+        String filePathB = Application.dataPath + "/Resources/Visualizations/Breathing.csv";
+
+        StreamWriter writer = new StreamWriter(filePath);
+        StreamWriter writerB = new StreamWriter(filePathB);
+
+        writer.WriteLine("Time,RR Interval");
+        writerB.WriteLine("Time,Breathing");
+
+        //Set current timestamp for realtime request, need to multiply this by 256 before request
+        TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
 		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
 		startTime = secondsSinceEpoch;
 		currentTime = secondsSinceEpoch;
 		float valueAvg;
 		int numValues;
 
-		//Get data from 30 seconds ago
-		startTime = startTime - 30;
-		currentTime = currentTime - 30;
+		//Get data from x seconds ago (Currently need to do testing beforehand to know the delay)
+		currentTime = currentTime - 60;
 
 		ulong currentHexoTime;
 		ulong endHexoTime;
 
 		endTime = startTime + 86400; //End time 24 hours from then
-
-		//By this point valid auth token has been given Repeat call every 15 seconds
-		//Have to use while true with a sleep in order to continuing calling every 15 seconds
-		while (true){
+        endHexoTime = endTime * 256;
+        //By this point valid auth token has been given Repeat call every 15 seconds
+        //Have to use while true with a sleep in order to continuing calling every 15 seconds
+        while (true){
 			//Create and send auth request to Hexoskin
 			//print("Creating realtime request");
 			currentHexoTime = currentTime * 256;
-			endHexoTime = endTime * 256;
 
-			//Build request url 18
-			//This request will return a flat array of values without timestamps for the requested datatype
-			String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime + "&end=" + endHexoTime + "&no_timestamps=exact";
-			//print (realTimeReqURI);
-			//https://api.hexoskin.com/api/data/?user=14159&datatype=18&start=392579598592&end=392579602432&flat=1&no_timestamps=exact
-			//"
-			using (UnityWebRequest realTimeReq = UnityWebRequest.Get (realTimeReqURI)) {
-				//print (AUTHTOKEN);
+            //Build request url 18
+            //This request will return a flat array of values without timestamps for the requested datatype
+            String realTimeReqURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=18" + "&start=" + currentHexoTime.ToString() + "&end=" + endHexoTime.ToString();
+            String realTimeBreathURI = "https://api.hexoskin.com/api/data/?" + "user=" + USERID + "&datatype=33" + "&start=" + currentHexoTime.ToString() + "&end=" + endHexoTime.ToString();
+            //print (realTimeReqURI);
+            //https://api.hexoskin.com/api/data/?user=14159&datatype=18&start=392579598592&end=392579602432&flat=1&no_timestamps=exact
+            
+            
+            /*    Request for RR interval data     */
+            using (UnityWebRequest realTimeReq = UnityWebRequest.Get (realTimeReqURI)) {
+                //print (AUTHTOKEN);
+                DownloadHandler dH = new DownloadHandlerBuffer();
+                realTimeReq.downloadHandler = dH;
+                realTimeReq.chunkedTransfer = false;
 				realTimeReq.SetRequestHeader("Authorization", "Bearer " + AUTHTOKEN);
-
 				yield return realTimeReq.SendWebRequest();
 
+                print(realTimeReq.downloadedBytes);
 				//Check for errors
 				if (realTimeReq.isNetworkError || realTimeReq.isHttpError)
 				{
 					print("Refresh error " + realTimeReq.error);
-					print(realTimeReq.downloadHandler.text);
+					print(dH.text);
 				}
 				else{
 					valueAvg = 0.0f;
 					numValues = 0;
 
 					string output = realTimeReq.downloadHandler.text;
-					string temp;
+                    print("Response: " + realTimeReq.downloadHandler.text);
+                    string temp;
 					Newtonsoft.Json.JsonReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(output));
-					while (reader.Read ()) {
+
+                    bool next = false; //Track next value
+                    double stampTemp = 0;
+                    while (reader.Read ()) {
 						if (reader.Value != null && reader.TokenType.ToString() == "Float") {
-							temp = reader.Value.ToString ();
-							valueAvg = valueAvg + float.Parse (temp);
-							numValues++;
+                            temp = reader.Value.ToString ();
+                            if(!next && temp != "18") {
+                                //Timestamp
+                                stampTemp = ulong.Parse(temp);
+                                stampTemp = stampTemp / 256;
+                                stampTemp = stampTemp - startTime;
+                                next = true;
+                            }else if (next && temp != "18") {
+                                if(stampTemp > 0.0){
+                                    //If timestamp if within the simulation starting
+                                    stampTemp = stampTemp / 60;
+                                    writer.WriteLine(stampTemp + "," + temp);
+                                    writer.Flush();
+                                    valueAvg = valueAvg + float.Parse(temp);
+                                    numValues++;
+                                }
+                                next = false;
+                            }
 						}
 					}
 					valueAvg = valueAvg / numValues;
@@ -192,13 +226,67 @@ public class API : MonoBehaviour {
 
 					print (valueAvg);
              
-					writer.WriteLine (output);
-					writer.Flush ();
+					
 				}
 			}
 
-			yield return new WaitForSeconds(31);
-			currentTime = currentTime + 30;
+            /*    Request for breathing data     */
+            //TODO: Might need to use something rather than breathing rate as there are gaps in the data. But it mightbe ok. See if I can get raw breathing data.
+            using (UnityWebRequest realTimeReq = UnityWebRequest.Get(realTimeBreathURI))
+            {
+                //print (AUTHTOKEN);
+                DownloadHandler dH = new DownloadHandlerBuffer();
+                realTimeReq.downloadHandler = dH;
+                realTimeReq.chunkedTransfer = false;
+                realTimeReq.SetRequestHeader("Authorization", "Bearer " + AUTHTOKEN);
+                yield return realTimeReq.SendWebRequest();
+
+                //Check for errors
+                if (realTimeReq.isNetworkError || realTimeReq.isHttpError)
+                {
+                    print("Refresh error " + realTimeReq.error);
+                    print(dH.text);
+                }
+                else
+                {
+                    string output = realTimeReq.downloadHandler.text;
+                    print("Response: " + realTimeReq.downloadHandler.text);
+                    string temp;
+                    Newtonsoft.Json.JsonReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(output));
+
+                    bool next = false; //Track next value
+                    double stampTemp = 0;
+                    while (reader.Read())
+                    {
+                        if (reader.Value != null && reader.TokenType.ToString() == "Float")
+                        {
+                            temp = reader.Value.ToString();
+                            if (!next && temp != "33")
+                            {
+                                //Timestamp
+                                stampTemp = ulong.Parse(temp);
+                                stampTemp = stampTemp / 256;
+                                stampTemp = stampTemp - startTime;
+                                next = true;
+                            }
+                            else if (next && temp != "33")
+                            {
+                                if (stampTemp > 0.0)
+                                {
+                                    //If timestamp if within the simulation starting
+                                    stampTemp = stampTemp / 60;
+                                    writerB.WriteLine(stampTemp + "," + temp);
+                                    writerB.Flush();
+                                }
+                                next = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            yield return new WaitForSeconds(60);
+			currentTime = currentTime + 60;
 		}
 		writer.Close ();
 	}
