@@ -17,7 +17,6 @@ public class Talk : MonoBehaviour {
         m_CharacterManager = GetComponent<M3DCharacterManager>();
         //GetComponent<M3DCharacterManager>().coreMorphs.morphLookup["eCTRLvER"];
         StartCoroutine(moveMouth());
-  
     }
 
     IEnumerator moveMouth()
@@ -27,15 +26,18 @@ public class Talk : MonoBehaviour {
             yield return new WaitForSeconds(0.3f);
             if (!open)
             {
-                m_CharacterManager.SetBlendshapeValue("eCTRLvER", 100);
+				LeanTween.value (gameObject, 0.0f, 100.0f, 0.3f).setOnUpdate ((float value) => {
+					m_CharacterManager.SetBlendshapeValue("eCTRLvER", 100);
+				}).setEase (LeanTweenType.easeInCubic);
                 open = true;
             }
             else
             {
-                m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
+				LeanTween.value (gameObject, 0.0f, 100.0f, 0.3f).setOnUpdate ((float value) => {
+					m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
+				}).setEase (LeanTweenType.easeInCubic);
                 open = false;
             }
-            
         }
     }
 }
