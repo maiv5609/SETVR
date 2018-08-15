@@ -36,7 +36,7 @@ public class API : MonoBehaviour {
         YIcon.CrossFadeAlpha(0, 0.1f, false);
         RIcon.CrossFadeAlpha(0, 0.1f, false);
         timeline.Start();
-		Request();
+		//Request();
     }
 
     /* Container class for auth token

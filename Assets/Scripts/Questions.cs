@@ -6,15 +6,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-//TODO: put all csv formats in one place, Take the minute values and floor them
-/* Added: 
- * Detection for speaking too loudly or softly
- * Interacting with objects
- * Breaking eye contact for too long
- * Interrupts
- * Pauses
- */
-
 public class Questions : MonoBehaviour {
 	//Metrics
 	private string filePath;
@@ -126,31 +117,38 @@ public class Questions : MonoBehaviour {
 		Invoke ("nextQuestion", 4); 
 	}
 
-	// Update is called once per frame
-	void Update () {
-		if (Microphone.devices.Length != 0) {
-			//Get mic volume
-			int dec = 128;
-			float[] waveData = new float[dec];
-			int micPosition = Microphone.GetPosition (null) - (dec + 1); // null means the first microphone
-			microphoneInput.GetData (waveData, micPosition);
+    // Update is called once per frame
+    void Update()
+    {
+        if (Microphone.devices.Length != 0)
+        {
+            //Get mic volume
+            int dec = 128;
+            float[] waveData = new float[dec];
+            int micPosition = Microphone.GetPosition(null) - (dec + 1); // null means the first microphone
+            microphoneInput.GetData(waveData, micPosition);
 
-			//Getting a peak from the last 128 samples
-			float levelMax = 0;
-			float wavePeak;
-			for (int i = 0; i < dec; i++) {
-				wavePeak = waveData [i] * waveData [i];
-				if (levelMax < wavePeak) {
-					levelMax = wavePeak;
-				}
-			}
+            //Getting a peak from the last 128 samples
+            float levelMax = 0;
+            float wavePeak;
+            for (int i = 0; i < dec; i++)
+            {
+                wavePeak = waveData[i] * waveData[i];
+                if (levelMax < wavePeak)
+                {
+                    levelMax = wavePeak;
+                }
+            }
 
-			float level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
-			//print("Level: " + level);
-            if (level > sensitivity) {
-                if (level > upperSensitivity) {
+            float level = Mathf.Sqrt(Mathf.Sqrt(levelMax));
+            //print("Level: " + level);
+            if (level > sensitivity)
+            {
+                if (level > upperSensitivity)
+                {
                     //User is speaking too loudly
-                    if (!loudWatch.IsRunning){
+                    if (!loudWatch.IsRunning)
+                    {
                         print("Loud start");
                         AddAlert("High");
                         loudWatch.Start();
@@ -159,73 +157,119 @@ public class Questions : MonoBehaviour {
                 }
 
                 //Check if interviewer is talking (find the temp audiosource gameobject)
-                if (GameObject.Find ("One shot audio") && !interrupted) {
-					//User interrupted interviewer
-					print ("interrupt");
-					interrupted = true;
+                if (GameObject.Find("One shot audio") && !interrupted)
+                {
+                    //User interrupted interviewer
+                    print("interrupt");
+                    interrupted = true;
                     AddAlert("Interrupt");
-				} else if (GameObject.Find ("One shot audio") == null && !userAnswered && !clipRecorded) {
-					//If user hasn't answered, audio clip hasn't been recorded yet
-					//This should only be used once per question to begin the recording
-					print ("Recording clip");
-					recordAudioClip();
-				} 
+                }
+                else if (GameObject.Find("One shot audio") == null && !userAnswered && !clipRecorded)
+                {
+                    //If user hasn't answered, audio clip hasn't been recorded yet
+                    //This should only be used once per question to begin the recording
+                    print("Recording clip");
+                    recordAudioClip();
+                }
 
-				//print ("Level: " + level);
-			} else {
+                //print ("Level: " + level);
+            }
+            else
+            {
                 //Check UI timers
-                if (loudWatch.IsRunning && loudWatch.Elapsed.Seconds > 3){
+                if (loudWatch.IsRunning && loudWatch.Elapsed.Seconds > 3)
+                {
                     print("Loud end");
                     loud.CrossFadeAlpha(0, 0.5f, false);
                     loudWatch.Reset();
                     loudWatch.Stop();
                 }
                 //User is not speaking
-                if (userAnswered && GameObject.Find ("One shot audio") == null) {
-					//Audio has been recorded and User has answered the question 
-					//Check for silence
-					silence.Start();
+                if (GameObject.Find("One shot audio") == null)
+                {
+                    //Audio has been recorded and User has answered the question 
+                    //Check for silence
+                    silence.Start();
 
-					waveData = new float[1000];
-					micPosition = Microphone.GetPosition (null) - (1000 + 1); // null means the first microphone
-					microphoneInput.GetData (waveData, micPosition);
-					//Check if user has not said anything during the last couple seconds before moving on
-					levelMax = 0;
-					wavePeak = 0;
-					for (int i = 0; i < 1000; i++) {
-						wavePeak = waveData [i] * waveData [i];
-						if (levelMax < wavePeak) {
-							levelMax = wavePeak;
-						}
-					}
-
-					level = Mathf.Sqrt (Mathf.Sqrt (levelMax));
-					TimeSpan ts = silence.Elapsed;
-
-					if (level > sensitivity) {
-                        if (!pauseLock && (2 <= ts.Seconds && 5 > ts.Seconds))  {
-                            pauses++;
-                            pauseLock = true;
-                            print("Silence Time: " + ts.TotalSeconds);
-                            AddAlert("Pause");
+                    if (userAnswered) {
+                        waveData = new float[1000];
+                        micPosition = Microphone.GetPosition(null) - (1000 + 1); // null means the first microphone
+                        microphoneInput.GetData(waveData, micPosition);
+                        //Check if user has not said anything during the last couple seconds before moving on
+                        levelMax = 0;
+                        wavePeak = 0;
+                        for (int i = 0; i < 1000; i++)
+                        {
+                            wavePeak = waveData[i] * waveData[i];
+                            if (levelMax < wavePeak)
+                            {
+                                levelMax = wavePeak;
+                            }
                         }
-                        silence.Reset ();
-					} else {
-                        if (1 <= ts.Seconds && pauseLock){
-                            pauseLock = false;
-                            print("Pause unlocked");
+
+                        level = Mathf.Sqrt(Mathf.Sqrt(levelMax));
+                        TimeSpan ts = silence.Elapsed;
+
+                        if (level > sensitivity)
+                        {
+                            if (!pauseLock && (2 <= ts.Seconds && 5 > ts.Seconds))
+                            {
+                                pauses++;
+                                pauseLock = true;
+                                print("Silence Time: " + ts.TotalSeconds);
+                                AddAlert("Pause");
+                            }
+                            silence.Reset();
                         }
-                        //If x seconds of silence has passed, continue
-                        if (!clipRecorded && userAnswered && ts.Seconds >= silenceTime) {
-                            pauseLock = false;
-                            stopAudioClip ();
-							nextQuestion ();
-						}
+                        else
+                        {
+                            if (1 <= ts.Seconds && pauseLock)
+                            {
+                                pauseLock = false;
+                                print("Pause unlocked");
+                            }
+                            //If x seconds of silence has passed, continue
+                            if (!clipRecorded && userAnswered && ts.Seconds >= silenceTime)
+                            {
+                                pauseLock = false;
+                                stopAudioClip();
+                                nextQuestion();
+                            }
+                        }
+                    }else if (!userAnswered)
+                    {
+                        TimeSpan ts = silence.Elapsed;
+                        if (level > sensitivity)
+                        {
+                            if (pauseLock && 1 <= ts.Seconds && pauseLock)
+                            {
+                                pauseLock = false;
+                                print("Pause unlocked");
+                            }
+                            else if (!pauseLock && (2 <= ts.Seconds && 5 > ts.Seconds))
+                            {
+                                pauses++;
+                                pauseLock = true;
+                                print("Silence Time: " + ts.TotalSeconds);
+                                AddAlert("Pause");
+                            }
+                            silence.Reset();
+                        }
+                        else
+                        {
+                            if (!pauseLock && (2 <= ts.Seconds && 5 > ts.Seconds))
+                            {
+                                pauses++;
+                                pauseLock = true;
+                                print("Silence Time: " + ts.TotalSeconds);
+                                AddAlert("Pause");
+                            }
+                        }
                     }
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
     /* Saves timestamp of answered question to csv
 	 * Format of csv: minutes, questionNumber
