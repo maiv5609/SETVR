@@ -75,17 +75,16 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 200);
+            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 170);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 0, 710, 170)
+            myChart.setBounds(60, 10, 710, 170)
             var x = myChart.addMeasureAxis("x", "Time");
 			x.addOrderRule("Time");
 			x.overrideMax = 15; //20 minute max
 			//x.overrideMin = 0;
             var y = myChart.addMeasureAxis("y", "RR Interval");
             var s = myChart.addSeries('Time', dimple.plot.line);
-
 			s.interpolation = "cardinal";
             myChart.defaultColors = [
 				new dimple.color("#000000")
@@ -99,7 +98,7 @@
       <div id="curvyLineChartContainer">
         <script type="text/javascript">
           function draw(data) {
-            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 200);
+            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 170);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 10, 710, 170)
@@ -108,9 +107,7 @@
 			x.overrideMax = 15; //20 minute max
             var y = myChart.addMeasureAxis("y", "Breathing");
             var s = myChart.addSeries('Time', dimple.plot.line);
-            //s.afterDraw = function () { cleanAxis(x, 10); };
 			y.addOrderRule("Breathing", false);
-			y.overrideMin = 5;
             s.interpolation = "cardinal";
             //myChart.addLegend(160, 10, 510, 20, "right");
             myChart.defaultColors = [
