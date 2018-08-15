@@ -16,7 +16,7 @@ public class API : MonoBehaviour {
 
 	private string AUTHTOKEN;
 	private string REFRESHTOKEN;
-	private const int delay = 60;
+	private const int delay = 15;
 
     private Stopwatch timeline = new Stopwatch(); //Timestamp tracking
 
