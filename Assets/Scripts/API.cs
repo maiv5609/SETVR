@@ -68,7 +68,7 @@ public class API : MonoBehaviour {
         //		print (currentTime);
         //		print (currentTime * 256);
 
-        StartCoroutine(RequestToken());
+        //StartCoroutine(RequestToken());
     }
 
     /* Requesting Functions */

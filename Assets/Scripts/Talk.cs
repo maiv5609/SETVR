@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Diagnostics;
 using UnityEngine.UI;
 using MORPH3D;
 using MORPH3D.FOUNDATIONS;
 
 public class Talk : MonoBehaviour {
 
-    private bool talk = true;
+    private bool talk = false;
     private bool open = false;
     private M3DCharacterManager m_CharacterManager;
 
@@ -15,29 +17,30 @@ public class Talk : MonoBehaviour {
     void Start()
     {
         m_CharacterManager = GetComponent<M3DCharacterManager>();
-        //GetComponent<M3DCharacterManager>().coreMorphs.morphLookup["eCTRLvER"];
         StartCoroutine(moveMouth());
+        m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
     }
 
-    IEnumerator moveMouth()
+    public void startTalking()
     {
-        while (talk)
-        {
-            yield return new WaitForSeconds(0.3f);
-            if (!open)
-            {
-				LeanTween.value (gameObject, 0.0f, 100.0f, 0.3f).setOnUpdate ((float value) => {
-					m_CharacterManager.SetBlendshapeValue("eCTRLvER", 100);
-				}).setEase (LeanTweenType.easeInCubic);
-                open = true;
-            }
-            else
-            {
-				LeanTween.value (gameObject, 0.0f, 100.0f, 0.3f).setOnUpdate ((float value) => {
-					m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
-				}).setEase (LeanTweenType.easeInCubic);
-                open = false;
-            }
-        }
+        InvokeRepeating("mouthOpen", 0.0f, 0.8f);
+    }
+
+    public void stopTalking()
+    {
+        m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
+        CancelInvoke();
+    }
+
+    public void mouthOpen()
+    {
+        //Open mouth and invoke close mouth 0.3 sec
+        m_CharacterManager.SetBlendshapeValue("eCTRLvER", 100);
+        Invoke("mouthClose", 0.3f);
+    }
+
+    public void mouthClose()
+    {
+        m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
     }
 }

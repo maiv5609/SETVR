@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Questions : MonoBehaviour {
+    public Talk interviewer;
+    public bool talking = false;
+
 	//Metrics
 	private string filePath;
 	private int pauses;
@@ -120,6 +123,12 @@ public class Questions : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if(!GameObject.Find("One shot audio") && talking)
+        {
+            interviewer.stopTalking();
+            talking = false;
+        }
+
         if (Microphone.devices.Length != 0)
         {
             //Get mic volume
@@ -384,6 +393,8 @@ public class Questions : MonoBehaviour {
 	 */
 	void InterviewerSpeak(int question){
 		response = Resources.Load<AudioClip>("QuestionAudio/Q" + question);
+        interviewer.startTalking();
+        talking = true;
         print("Question: " + question);
 		//Record timestamp to csv
 		TimeSpan time = timeline.Elapsed;
@@ -421,7 +432,7 @@ public class Questions : MonoBehaviour {
             //Save Audio to file
 
             //TODO: uncomment this in final build
-            //SavWav.Save("userAudio", microphoneInput);
+            SavWav.Save("userAudio", microphoneInput);
         }
     }
 }
