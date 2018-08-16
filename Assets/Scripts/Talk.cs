@@ -17,7 +17,6 @@ public class Talk : MonoBehaviour {
     void Start()
     {
         m_CharacterManager = GetComponent<M3DCharacterManager>();
-        StartCoroutine(moveMouth());
         m_CharacterManager.SetBlendshapeValue("eCTRLvER", 0);
     }
 
