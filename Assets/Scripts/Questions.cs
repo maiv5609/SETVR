@@ -432,7 +432,7 @@ public class Questions : MonoBehaviour {
             //Save Audio to file
 
             //TODO: uncomment this in final build
-            //SavWav.Save("userAudio", microphoneInput);
+            SavWav.Save("userAudio", microphoneInput);
         }
     }
 }

@@ -8,6 +8,9 @@ Assets/*
 Assetsmetrics.csv
 Assets/Resources/*.meta
 Assets/Resources/Visualizations/
+Assets/Resources/userAudio.wav
+Assets/MusicPlayer/
+
 
 #Include these files
 !/Assets/EnvScene.unity
@@ -17,6 +20,7 @@ Assets/Resources/Visualizations/
 !/Assets/Scripts
 !/Assets/Questions
 !/Assets/dll
+!/Assets/MusicPlayer/scripts
 !/Assets/Resources
 !/Assets/Resources/Visualizations/index.html
 !/Assets/eye.png
