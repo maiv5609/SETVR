@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Questions : MonoBehaviour {
     public Talk interviewer;
@@ -57,6 +58,9 @@ public class Questions : MonoBehaviour {
 	private int clipCounter = 0;
 
     public Image loud;
+	public Image shortImage; 
+	public Image longImage;
+
     private Stopwatch loudWatch = new Stopwatch();
 
 
@@ -64,6 +68,8 @@ public class Questions : MonoBehaviour {
     void Awake () {
         //Inital UI
         loud.CrossFadeAlpha(0, 0.1f, false);
+		shortImage.CrossFadeAlpha(0, 0.1f, false);
+		longImage.CrossFadeAlpha(0, 0.1f, false);
 
         //Create csv files for metrics
         questionResponses = new StreamWriter (Application.dataPath + "/Resources/Visualizations/responseTimestamps.csv");
@@ -199,7 +205,6 @@ public class Questions : MonoBehaviour {
                     //Audio has been recorded and User has answered the question 
                     //Check for silence
                     silence.Start();
-
                     if (userAnswered) {
                         waveData = new float[1000];
                         micPosition = Microphone.GetPosition(null) - (1000 + 1); // null means the first microphone
@@ -232,6 +237,25 @@ public class Questions : MonoBehaviour {
                         }
                         else
                         {
+							//Check response length
+							TimeSpan rs = responseLength.Elapsed;
+							if (rs.Seconds <= 30) {
+								silenceTime = 10;
+								//Pop up icon saying to speak more
+								shortImage.CrossFadeAlpha(1, 0.1f, false);
+								AddAlert ("Short Response");
+								Invoke ("hideHourglass", 3);
+							} else if (rs.Seconds > 30 && rs.Seconds < 120) {
+								silenceTime = 5;
+								//Do nothing, continue
+							} else if (rs.Seconds > 120) {
+								silenceTime = 1;
+								//Pop up icon saying you spoke too much
+								longImage.CrossFadeAlpha(1, 0.1f, false);
+								AddAlert ("Long Response");
+								Invoke ("hideHourglass", 3);
+							}
+
                             if (1 <= ts.Seconds && pauseLock)
                             {
                                 pauseLock = false;
@@ -280,11 +304,15 @@ public class Questions : MonoBehaviour {
         }
     }
 
-    /* Saves timestamp of answered question to csv
-	 * Format of csv: minutes, questionNumber
-     * { "key": 4, "xval":16, "yval":50 }
-	 */
 
+	void hideHourglass(){
+		shortImage.CrossFadeAlpha(0, 0.1f, false);
+		longImage.CrossFadeAlpha(0, 0.1f, false);
+	}
+
+    /* Saves timestamp of answered question to csv
+	 * 
+	 */
     void questionTimestamp (int minute, int second){
         double temp = (double)minute + ((double)second / 60);
         questionResponses.WriteLine (currQuestion + "," + temp);
@@ -349,6 +377,7 @@ public class Questions : MonoBehaviour {
 
             if(currQuestion == 9) {
                 endQuestions = true;
+				endSimulation ();
             }
 
             /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
@@ -387,6 +416,8 @@ public class Questions : MonoBehaviour {
         }
     }
 
+
+
 	/* Takes in current interview phase and selected question
 	 * Plays selected audio clip for question
      * Currently adjusted to have a structured series of questions
@@ -412,27 +443,27 @@ public class Questions : MonoBehaviour {
         alerts.Flush();
     }
 
-    //TODO
-	void OnApplicationQuit(){
-        miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
-        miscMetrics.WriteLine("Pauses, " + pauses);
-        miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
-        miscMetrics.Flush();
+	void endSimulation(){
+		miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
+		miscMetrics.WriteLine("Pauses, " + pauses);
+		miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
+		miscMetrics.Flush();
 
-        //TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
-        //Closes the file
-        questionResponses.Close();
-        responseLengths.Close();
-        alerts.Close();
-        miscMetrics.Close ();
+		//TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
+		//Closes the file
+		questionResponses.Close();
+		responseLengths.Close();
+		alerts.Close();
+		miscMetrics.Close ();
 
-        timeline.Stop();
-        if (Microphone.devices.Length != 0)
-        {
-            //Save Audio to file
+		timeline.Stop();
+		if (Microphone.devices.Length != 0)
+		{
+			//Save Audio to file
 
-            //TODO: uncomment this in final build
-            SavWav.Save("userAudio", microphoneInput);
-        }
-    }
+			//TODO: uncomment this in final build
+			SavWav.Save("userAudio", microphoneInput);
+		}
+		SceneManager.LoadScene("Post");
+	}
 }
