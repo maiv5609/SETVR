@@ -51,9 +51,11 @@ public class Questions : MonoBehaviour {
 	private bool userAnswered = false;
 	private bool interrupted = false;
     private bool pauseLock = false;
+    private bool shortLock = false; //Flag so that user is only alerted once per question for having a short response
+    private bool longLock = false; //Flag so that user is only alerted once per question for having a long response
 
-	//Recording Clips
-	private AudioClip currentClip;
+    //Recording Clips
+    private AudioClip currentClip;
 	private bool clipRecorded = false;
 	private int clipCounter = 0;
 
@@ -237,22 +239,26 @@ public class Questions : MonoBehaviour {
                         }
                         else
                         {
-							//Check response length
+							//Check response length if user has been silent for 2 seconds, only alert them once per question for either one
 							TimeSpan rs = responseLength.Elapsed;
-							if (rs.Seconds <= 30) {
+							if (ts.Seconds >= 2 && rs.Seconds > 0 && rs.Seconds <= 30 && !shortLock) {
 								silenceTime = 10;
+                                shortLock = true;
 								//Pop up icon saying to speak more
 								shortImage.CrossFadeAlpha(1, 0.1f, false);
+                                print("Short Response");
 								AddAlert ("Short Response");
 								Invoke ("hideHourglass", 3);
 							} else if (rs.Seconds > 30 && rs.Seconds < 120) {
 								silenceTime = 5;
 								//Do nothing, continue
-							} else if (rs.Seconds > 120) {
-								silenceTime = 1;
+							} else if (ts.Seconds >= 2 && rs.Seconds > 120 && !longLock) {
+								silenceTime = 2;
+                                longLock = true;
 								//Pop up icon saying you spoke too much
 								longImage.CrossFadeAlpha(1, 0.1f, false);
-								AddAlert ("Long Response");
+                                print("Long Response");
+                                AddAlert ("Long Response");
 								Invoke ("hideHourglass", 3);
 							}
 
@@ -336,7 +342,10 @@ public class Questions : MonoBehaviour {
 	 * Format of csv: minute, questionNumber
 	 */
 	public void stopAudioClip(){
+        //Reset Flags
 		clipRecorded = true;
+        shortLock = false;
+        longLock = false;
 		clipCounter++;
 		//Microphone.End(Microphone.devices[0]);
 		//Save Audio to file
