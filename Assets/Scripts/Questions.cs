@@ -81,7 +81,7 @@ public class Questions : MonoBehaviour {
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),Time Spent Talking,value,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),value,Time Spent Talking,slot");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 
@@ -380,14 +380,20 @@ public class Questions : MonoBehaviour {
 			//Reset detection flags
 			clipRecorded = false;
 			userAnswered = false;
-
-            InterviewerSpeak(currQuestion);
-            currQuestion++;
-
-            if(currQuestion == 9) {
+            if (currQuestion == 9)
+            {
                 endQuestions = true;
-				endSimulation ();
+                endSimulation();
             }
+            else
+            {
+                InterviewerSpeak(currQuestion);
+                currQuestion++;
+            }
+            
+            
+            
+            
 
             /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
              * 
