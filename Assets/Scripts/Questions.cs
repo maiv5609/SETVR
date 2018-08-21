@@ -472,13 +472,11 @@ public class Questions : MonoBehaviour {
 		miscMetrics.Close ();
 
 		timeline.Stop();
-		if (Microphone.devices.Length != 0)
-		{
-			//Save Audio to file
+		var filedone = SavWav.Save("userAudio", microphoneInput);
 
-			//TODO: uncomment this in final build
-			SavWav.Save("userAudio", microphoneInput);
-		}
-		SceneManager.LoadScene("Post");
+        if (filedone)
+        {
+            SceneManager.LoadScene("Post");
+        }
 	}
 }

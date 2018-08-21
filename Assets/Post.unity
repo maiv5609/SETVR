@@ -3024,13 +3024,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89deef9d9fd890e47975fceabb7f105e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugMsgs: 0
-  pauseListeners: []
-  resumeListeners: []
-  playListeners: []
-  stopListeners: []
-  saveSceneListeners: []
-  loadProjectListeners: []
 --- !u!4 &1107626432
 Transform:
   m_ObjectHideFlags: 0
