@@ -458,25 +458,31 @@ public class Questions : MonoBehaviour {
         alerts.Flush();
     }
 
+    //Normally will put everything that is in OnApplicationQuit here
 	void endSimulation(){
-		miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
-		miscMetrics.WriteLine("Pauses, " + pauses);
-		miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
-		miscMetrics.Flush();
+        print("FINISHED");
+	}
 
-		//TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
-		//Closes the file
-		questionResponses.Close();
-		responseLengths.Close();
-		alerts.Close();
-		miscMetrics.Close ();
+    private void OnApplicationQuit()
+    {
+        miscMetrics.WriteLine("Interrupts, " + interruptCounter);
+        miscMetrics.WriteLine("Pauses, " + pauses);
+        miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
+        miscMetrics.Flush();
 
-		timeline.Stop();
-		var filedone = SavWav.Save("userAudio", microphoneInput);
+        //TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
+        //Closes the file
+        questionResponses.Close();
+        responseLengths.Close();
+        alerts.Close();
+        miscMetrics.Close();
+
+        timeline.Stop();
+        var filedone = SavWav.Save("userAudio", microphoneInput);
 
         if (filedone)
         {
             SceneManager.LoadScene("Post");
         }
-	}
+    }
 }
