@@ -122,8 +122,8 @@ public class API : MonoBehaviour {
         StreamWriter writer = new StreamWriter(filePath);
         StreamWriter writerB = new StreamWriter(filePathB);
 
-        writer.WriteLine("Time,RR Interval");
-        writerB.WriteLine("Time,Breathing");
+        writer.WriteLine("Timestamp (Minutes),RR Interval");
+        writerB.WriteLine("Timestamp (Minutes),Breathing");
 
         //Set current timestamp for realtime request, need to multiply this by 256 before request
         TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);

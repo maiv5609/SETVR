@@ -31,7 +31,7 @@
 	  <div id="questionContainer">
          <script type="text/javascript">
           function draw(data) {
-            var svg = dimple.newSvg("#questionContainer", 800, 200);
+            var svg = dimple.newSvg("#questionContainer", 900, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(60, 10, 710, 140)
@@ -52,39 +52,17 @@
       </div>
       <div id="simpleLineChartContainer">
         <script type="text/javascript">
-         var cleanAxis;
           function draw(data) {
-          
-          cleanAxis = function (axis, oneInEvery) {
-    // This should have been called after draw, otherwise do nothing
-			if (axis.shapes.length > 0) {
-				// Leave the first label
-				var del = 0;
-				// If there is an interval set
-				if (oneInEvery > 1) {
-				    // Operate on all the axis text
-				    axis.shapes.selectAll("text").each(function (d) {
-				        d3.select(this).attr("opacity", 1);
-				        // Remove all but the nth label
-				        if (del % oneInEvery !== 0) {
-				            d3.select(this).attr("opacity", 0);
-				        }
-				        del += 1;
-				    });
-				}
-			}
-		};
-          
-            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 170);
+            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 170)
-            var x = myChart.addMeasureAxis("x", "Time");
-			x.addOrderRule("Time");
+            myChart.setBounds(60, 10, 710, 140)
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+			x.addOrderRule("Timestamp (Minutes)");
 			x.overrideMax = 15; //20 minute max
 			//x.overrideMin = 0;
             var y = myChart.addMeasureAxis("y", "RR Interval");
-            var s = myChart.addSeries('Time', dimple.plot.line);
+            var s = myChart.addSeries(['Timestamp (Minutes)'], dimple.plot.line);
 			s.interpolation = "cardinal";
             myChart.defaultColors = [
 				new dimple.color("#000000")
@@ -98,15 +76,15 @@
       <div id="curvyLineChartContainer">
         <script type="text/javascript">
           function draw(data) {
-            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 170);
+            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 170)
-            var x = myChart.addMeasureAxis("x", "Time");
-            x.addOrderRule("Time", false);
+            myChart.setBounds(60, 10, 710, 140)
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+            x.addOrderRule("Timestamp (Minutes)", false);
 			x.overrideMax = 15; //20 minute max
             var y = myChart.addMeasureAxis("y", "Breathing");
-            var s = myChart.addSeries('Time', dimple.plot.line);
+            var s = myChart.addSeries('Timestamp (Minutes)', dimple.plot.line);
 			y.addOrderRule("Breathing", false);
             s.interpolation = "cardinal";
             //myChart.addLegend(160, 10, 510, 20, "right");
@@ -128,7 +106,7 @@
 			x.addOrderRule("Timestamp (Minutes)", false);
             x.overrideMax = 15;
             var y= myChart.addMeasureAxis("y", "Time Spent Talking");
-            myChart.addSeries(null, dimple.plot.bar);
+            myChart.addSeries('Timestamp (Minutes)', dimple.plot.bar);
             myChart.defaultColors = [
 				new dimple.color("#000000"),
 				new dimple.color("#000000"),
@@ -173,10 +151,10 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#alertContainer", 800, 200);
+            var svg = dimple.newSvg("#alertContainer", 900, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(70, 0, 710, 180)
+            myChart.setBounds(90, 0, 730, 140)
             var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
             x.overrideMax = 15;
             var y = myChart.addCategoryAxis("y", "Alert");
@@ -185,11 +163,15 @@
             //s.afterDraw = function () { cleanAxis(x, 10); };
            // myChart.addLegend(160, 10, 310, 20, "right");
             myChart.defaultColors = [
-				new dimple.color("#C70039"),
-				new dimple.color("#3300C7"),
-				new dimple.color("#09C700"),
-				new dimple.color("#00C7AF"),
-			]; 
+				new dimple.color("#C70039"), //Dark red
+				new dimple.color("#3300C7"), //Blue
+				new dimple.color("#09C700"), //Green
+				new dimple.color("#00C7AF"), //Sky Blue
+				new dimple.color("#FF5733"), //Orange
+				new dimple.color("#cc33ff"), //Purple
+				new dimple.color("#00ff00"), //Lime Green
+				new dimple.color("#ff00bf"), //Neon Purple
+			];
 			
             myChart.draw();
           };
@@ -198,8 +180,6 @@
         </script>
       </div>
     </div>
-    <footer class="w3-container w3-theme footer" style="padding:32px" position="fixed">
-    </footer>
   </div>
 </body>
 

@@ -81,7 +81,7 @@ public class Questions : MonoBehaviour {
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),value,Time Spent Talking,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),Time Spent Talking,value,slot");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 
@@ -167,7 +167,7 @@ public class Questions : MonoBehaviour {
                     if (!loudWatch.IsRunning)
                     {
                         print("Loud start");
-                        AddAlert("High");
+                        AddAlert("Loud");
                         loudWatch.Start();
                         loud.CrossFadeAlpha(1, 0.5f, false);
                     }
@@ -321,6 +321,7 @@ public class Questions : MonoBehaviour {
 	 */
     void questionTimestamp (int minute, int second){
         double temp = (double)minute + ((double)second / 60);
+        temp = Math.Round(temp, 2);
         questionResponses.WriteLine (currQuestion + "," + temp);
         questionResponses.Flush ();
 	}
@@ -355,7 +356,9 @@ public class Questions : MonoBehaviour {
 		TimeSpan responseTimespan = responseLength.Elapsed; //Time spent talking
 		responseLength.Reset();
         double stampTemp = (double)timestamp.Minutes + ((double)timestamp.Seconds / 60);
+        stampTemp = Math.Round(stampTemp, 2);
         double timeTemp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
+        timeTemp = Math.Round(timeTemp, 2);
         string slot = (currQuestion - 1).ToString();
         responseLengths.WriteLine (stampTemp + ",1,"  + timeTemp.ToString() + ",slot" + stampTemp);
         responseLengths.Flush();
@@ -380,20 +383,14 @@ public class Questions : MonoBehaviour {
 			//Reset detection flags
 			clipRecorded = false;
 			userAnswered = false;
-            if (currQuestion == 9)
-            {
+
+            InterviewerSpeak(currQuestion);
+            currQuestion++;
+
+            if(currQuestion == 9) {
                 endQuestions = true;
-                endSimulation();
+				endSimulation ();
             }
-            else
-            {
-                InterviewerSpeak(currQuestion);
-                currQuestion++;
-            }
-            
-            
-            
-            
 
             /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
              * 
@@ -445,7 +442,7 @@ public class Questions : MonoBehaviour {
 		//Record timestamp to csv
 		TimeSpan time = timeline.Elapsed;
 		questionTimestamp ((int)time.TotalMinutes, (int)time.TotalSeconds); 
-		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.1f);
+		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.6f);
 	}
 
     public void AddAlert(string alertType){
@@ -454,35 +451,32 @@ public class Questions : MonoBehaviour {
         }
         TimeSpan timestamp = timeline.Elapsed;
         double stampTemp = (double)timestamp.Minutes + ((double)timestamp.Seconds / 60);
+        stampTemp = Math.Round(stampTemp, 2);
         alerts.WriteLine(alertType + "," + stampTemp);
         alerts.Flush();
     }
 
-    //Normally will put everything that is in OnApplicationQuit here
 	void endSimulation(){
-        print("FINISHED");
+		miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
+		miscMetrics.WriteLine("Pauses, " + pauses);
+		miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
+		miscMetrics.Flush();
+
+		//TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
+		//Closes the file
+		questionResponses.Close();
+		responseLengths.Close();
+		alerts.Close();
+		miscMetrics.Close ();
+
+		timeline.Stop();
+		if (Microphone.devices.Length != 0)
+		{
+			//Save Audio to file
+
+			//TODO: uncomment this in final build
+			SavWav.Save("userAudio", microphoneInput);
+		}
+		SceneManager.LoadScene("Post");
 	}
-
-    private void OnApplicationQuit()
-    {
-        miscMetrics.WriteLine("Interrupts, " + interruptCounter);
-        miscMetrics.WriteLine("Pauses, " + pauses);
-        miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
-        miscMetrics.Flush();
-
-        //TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
-        //Closes the file
-        questionResponses.Close();
-        responseLengths.Close();
-        alerts.Close();
-        miscMetrics.Close();
-
-        timeline.Stop();
-        var filedone = SavWav.Save("userAudio", microphoneInput);
-
-        if (filedone)
-        {
-            SceneManager.LoadScene("Post");
-        }
-    }
 }
