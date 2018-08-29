@@ -81,7 +81,7 @@ public class Questions : MonoBehaviour {
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),Time Spent Talking,value,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),value,Time Spent Talking,slot");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 

@@ -34,7 +34,7 @@
             var svg = dimple.newSvg("#questionContainer", 900, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 140)
+            myChart.setBounds(90, 0, 730, 200)
             var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
 			x.overrideMax = 15; //20 minute max
             var y = myChart.addCategoryAxis("y", "Question");
@@ -50,59 +50,13 @@
           d3.csv("responseTimestamps.csv", draw);
         </script>
       </div>
-      <div id="simpleLineChartContainer">
-        <script type="text/javascript">
-          function draw(data) {
-            var svg = dimple.newSvg("#simpleLineChartContainer", 800, 200);
-            // Create and Position a Chart
-            var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 140)
-            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
-			x.addOrderRule("Timestamp (Minutes)");
-			x.overrideMax = 15; //20 minute max
-			//x.overrideMin = 0;
-            var y = myChart.addMeasureAxis("y", "RR Interval");
-            var s = myChart.addSeries(['Timestamp (Minutes)'], dimple.plot.line);
-			s.interpolation = "cardinal";
-            myChart.defaultColors = [
-				new dimple.color("#000000")
-			]; 
-            myChart.draw();
-          };
-          
-          d3.csv("RR.csv", draw);
-        </script>
-      </div>
-      <div id="curvyLineChartContainer">
-        <script type="text/javascript">
-          function draw(data) {
-            var svg = dimple.newSvg("#curvyLineChartContainer", 800, 200);
-            // Create and Position a Chart
-            var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 140)
-            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
-            x.addOrderRule("Timestamp (Minutes)", false);
-			x.overrideMax = 15; //20 minute max
-            var y = myChart.addMeasureAxis("y", "Breathing");
-            var s = myChart.addSeries('Timestamp (Minutes)', dimple.plot.line);
-			y.addOrderRule("Breathing", false);
-            s.interpolation = "cardinal";
-            //myChart.addLegend(160, 10, 510, 20, "right");
-            myChart.defaultColors = [
-				new dimple.color("#ff0000")
-			]; 
-            myChart.draw();
-          };
-          d3.csv("Breathing.csv", draw);
-        </script>
-      </div>
 	  <div id="barChartContainer">
         <script type="text/javascript">
-          var svg = dimple.newSvg("#barChartContainer", 800, 220);
+          var svg = dimple.newSvg("#barChartContainer", 900, 220);
           d3.csv("responseLengths.csv", function (data) {
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 10, 710, 170)
-            var x = myChart.addCategoryAxis("x", "Timestamp (Minutes)");
+            myChart.setBounds(90, 10, 730, 170)
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
 			x.addOrderRule("Timestamp (Minutes)", false);
             x.overrideMax = 15;
             var y= myChart.addMeasureAxis("y", "Time Spent Talking");
@@ -124,6 +78,52 @@
             
             myChart.draw();
           });
+        </script>
+      </div>
+      <div id="simpleLineChartContainer">
+        <script type="text/javascript">
+          function draw(data) {
+            var svg = dimple.newSvg("#simpleLineChartContainer", 900, 200);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(90, 10, 730, 140)
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+			x.addOrderRule("Timestamp (Minutes)");
+			x.overrideMax = 15; //20 minute max
+			//x.overrideMin = 0;
+            var y = myChart.addMeasureAxis("y", "RR Interval");
+            var s = myChart.addSeries(['Timestamp (Minutes)'], dimple.plot.line);
+			s.interpolation = "cardinal";
+            myChart.defaultColors = [
+				new dimple.color("#26CD56")
+			]; 
+            myChart.draw();
+          };
+          
+          d3.csv("RR.csv", draw);
+        </script>
+      </div>
+      <div id="curvyLineChartContainer">
+        <script type="text/javascript">
+          function draw(data) {
+            var svg = dimple.newSvg("#curvyLineChartContainer", 900, 200);
+            // Create and Position a Chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(90, 10, 730, 140)
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
+            x.addOrderRule("Timestamp (Minutes)", false);
+			x.overrideMax = 15; //20 minute max
+            var y = myChart.addMeasureAxis("y", "Breathing");
+            var s = myChart.addSeries('Timestamp (Minutes)', dimple.plot.line);
+			y.addOrderRule("Breathing", false);
+            s.interpolation = "cardinal";
+            //myChart.addLegend(160, 10, 510, 20, "right");
+            myChart.defaultColors = [
+				new dimple.color("#00B0FF")
+			]; 
+            myChart.draw();
+          };
+          d3.csv("Breathing.csv", draw);
         </script>
       </div>
 	  <div id="alertContainer">
