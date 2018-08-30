@@ -41,7 +41,7 @@ public class Questions : MonoBehaviour {
 
 	//User Mic Input
 	public float sensitivity; //Used for detecting talking in general, default 0.1
-    public float upperSensitivity; //Upper bound on volume, default .6 or .7
+    public float upperSensitivity; //Upper bound on volume, default for STC: 0.55 - 0.6
     public float lowerSensitivity; //Lower bound on volume, default .3
     private int silenceTime;
 	private int interruptCounter = 0;
@@ -65,7 +65,6 @@ public class Questions : MonoBehaviour {
 
     private Stopwatch loudWatch = new Stopwatch();
 
-
     // Called when object has been initialized by Unity
     void Awake () {
         //Inital UI
@@ -81,7 +80,7 @@ public class Questions : MonoBehaviour {
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),value,Time Spent Talking,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),value,Response Length,slot");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 

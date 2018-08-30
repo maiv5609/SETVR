@@ -356,22 +356,28 @@ public class HajiyevMusicManager : MonoBehaviour {
         }
     }
 
-	public void forward(){
-		print ("forward");
-		MoveForward ();
-	}
+	//Jump to a certain point in the recording
+	public void seek(float jump) {
+		float seconds = jump * 60f;
+		if (IsPlaying()) {
+			Pause();
+			if (audioSource.clip) {
+				audioSource.time = seconds;
+			}
+			Play();
+		} else {
+			if (audioSource.clip) {
+				audioSource.time = seconds;
+			}
+		}
 
-	public void backward(){
-		MoveBackward ();
 	}
-
 
     /// <summary>
     /// Advance a bit in the song
     /// </summary>
     /// <param name="seconds"></param>
-    public void MoveForward() {
-		print ("forwarded");
+	public void MoveForward() {
 		float seconds = 30f;
         if (IsPlaying()) {
             Pause();
