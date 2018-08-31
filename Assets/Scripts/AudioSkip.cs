@@ -7,9 +7,11 @@ using UnityEngine;
 public class AudioSkip : MonoBehaviour {
 	private float[] timestamps = new float[10];
 	private String[] values;
+    private GameObject audio;
     public List<float> list = new List<float>();
     // Use this for initialization
     void Start () {
+        audio = GameObject.Find("MusicManager");
         using (var reader = new StreamReader(Application.dataPath + "/Resources/Visualizations/responseTimestamps.csv"))
         {
             while (!reader.EndOfStream)
@@ -29,10 +31,9 @@ public class AudioSkip : MonoBehaviour {
 
     public void seek(int question)
     {
-        print("Question: " + question + " , " + list[0]);
-
-        GameObject audio = GameObject.Find("MusicManager");
-        audio.GetComponent<HajiyevMusicManager>().seek(list[0]);
+        print("Question: " + question + " , " + list[question-1]);
+        var manager = audio.GetComponent<HajiyevMusicManager>();
+        manager.seek(list[question-1]);
     }
 
 }

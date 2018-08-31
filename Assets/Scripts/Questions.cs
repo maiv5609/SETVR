@@ -7,16 +7,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class Questions : MonoBehaviour {
+public class Questions : MonoBehaviour
+{
     public Talk interviewer;
     public bool talking = false;
 
-	//Metrics
-	private string filePath;
-	private int pauses;
+    //Metrics
+    private string filePath;
+    private int pauses;
     private int objectsGrabbed;
-	private Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
-	private Stopwatch responseLength = new Stopwatch(); //Times 
+    private Stopwatch timeline = new Stopwatch(); // Used for getting timestamps 
+    private Stopwatch responseLength = new Stopwatch(); //Times 
 
     //Writers for csv files
     private StreamWriter questionResponses;
@@ -26,71 +27,73 @@ public class Questions : MonoBehaviour {
 
     //Current indexes for lists
     private int index1 = 0;
-	private int index2 = 0;
-	private int index3 = 0;
-	//Lists to store questions
-	private List<string> phase1 = new List<string>();
-	private List<string> phase2 = new List<string>();
-	private List<string> phase3 = new List<string>();
-	private bool endQuestions = false;
+    private int index2 = 0;
+    private int index3 = 0;
+    //Lists to store questions
+    private List<string> phase1 = new List<string>();
+    private List<string> phase2 = new List<string>();
+    private List<string> phase3 = new List<string>();
+    private bool endQuestions = false;
     private int currQuestion = 1;
 
     //Audioclip for interviewer responses
     private int voiceSampleSize;
-	private AudioClip response;
+    private AudioClip response;
 
-	//User Mic Input
-	public float sensitivity; //Used for detecting talking in general, default 0.1
-    public float upperSensitivity; //Upper bound on volume, default for STC: 0.55 - 0.6
+    //User Mic Input
+    public float sensitivity; //Used for detecting talking in general, default 0.1
+    public float upperSensitivity; //Upper bound on volume, default .6 or .7
     public float lowerSensitivity; //Lower bound on volume, default .3
     private int silenceTime;
-	private int interruptCounter = 0;
-	private Stopwatch silence = new Stopwatch (); //used to detect slience
+    private int interruptCounter = 0;
+    private Stopwatch silence = new Stopwatch(); //used to detect slience
     private Stopwatch volume = new Stopwatch(); //used to time volume peak time
     private AudioClip microphoneInput;
-	private bool userAnswered = false;
-	private bool interrupted = false;
+    private bool userAnswered = false;
+    private bool interrupted = false;
     private bool pauseLock = false;
     private bool shortLock = false; //Flag so that user is only alerted once per question for having a short response
     private bool longLock = false; //Flag so that user is only alerted once per question for having a long response
 
     //Recording Clips
     private AudioClip currentClip;
-	private bool clipRecorded = false;
-	private int clipCounter = 0;
+    private bool clipRecorded = false;
+    private int clipCounter = 0;
 
     public Image loud;
-	public Image shortImage; 
-	public Image longImage;
+    public Image shortImage;
+    public Image longImage;
 
     private Stopwatch loudWatch = new Stopwatch();
 
+
     // Called when object has been initialized by Unity
-    void Awake () {
+    void Awake()
+    {
         //Inital UI
         loud.CrossFadeAlpha(0, 0.1f, false);
-		shortImage.CrossFadeAlpha(0, 0.1f, false);
-		longImage.CrossFadeAlpha(0, 0.1f, false);
+        shortImage.CrossFadeAlpha(0, 0.1f, false);
+        longImage.CrossFadeAlpha(0, 0.1f, false);
 
         //Create csv files for metrics
-        questionResponses = new StreamWriter (Application.dataPath + "/Resources/Visualizations/responseTimestamps.csv");
+        questionResponses = new StreamWriter(Application.dataPath + "/Resources/Visualizations/responseTimestamps.csv");
         responseLengths = new StreamWriter(Application.dataPath + "/Resources/Visualizations/responseLengths.csv");
         alerts = new StreamWriter(Application.dataPath + "/Resources/Visualizations/alerts.csv");
         miscMetrics = new StreamWriter(Application.dataPath + "/Resources/Visualizations/miscMetrics.csv");
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),value,Response Length,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),value,Minutes,slot");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 
-        timeline.Start ();
-		/* Reading in Questions */
-		string line;
-		string path;
-		path = Application.dataPath;
-		silenceTime = 5;
-		
+        timeline.Start();
+        /* Reading in Questions */
+        string line;
+        string path;
+        path = Application.dataPath;
+        silenceTime = 5;
+
         /* This will be used for UI in the random pool questions, but will not be needed for the study
          * 
          * 
@@ -113,24 +116,27 @@ public class Questions : MonoBehaviour {
         * 
         */
 
-		/* Setup mic detection for user */
-		if (Microphone.devices.Length == 0) {
-			//pause and ask user to plug in mic
-			print("no microphone plugged in");
-		} else {
-			microphoneInput = Microphone.Start(Microphone.devices[0], true, 1200, 44100);
-		}
+        /* Setup mic detection for user */
+        if (Microphone.devices.Length == 0)
+        {
+            //pause and ask user to plug in mic
+            print("no microphone plugged in");
+        }
+        else
+        {
+            microphoneInput = Microphone.Start(Microphone.devices[0], true, 1200, 44100);
+        }
 
-		//Set detection variables to true to start detection, they will be reset later
-		userAnswered = true;
-		clipRecorded = true;
-		Invoke ("nextQuestion", 4); 
-	}
+        //Set detection variables to true to start detection, they will be reset later
+        userAnswered = true;
+        clipRecorded = true;
+        Invoke("nextQuestion", 4);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if(!GameObject.Find("One shot audio") && talking)
+        if (!GameObject.Find("One shot audio") && talking)
         {
             interviewer.stopTalking();
             talking = false;
@@ -166,7 +172,7 @@ public class Questions : MonoBehaviour {
                     if (!loudWatch.IsRunning)
                     {
                         print("Loud start");
-                        AddAlert("Loud");
+                        AddAlert("High");
                         loudWatch.Start();
                         loud.CrossFadeAlpha(1, 0.5f, false);
                     }
@@ -206,7 +212,8 @@ public class Questions : MonoBehaviour {
                     //Audio has been recorded and User has answered the question 
                     //Check for silence
                     silence.Start();
-                    if (userAnswered) {
+                    if (userAnswered)
+                    {
                         waveData = new float[1000];
                         micPosition = Microphone.GetPosition(null) - (1000 + 1); // null means the first microphone
                         microphoneInput.GetData(waveData, micPosition);
@@ -238,28 +245,33 @@ public class Questions : MonoBehaviour {
                         }
                         else
                         {
-							//Check response length if user has been silent for 2 seconds, only alert them once per question for either one
-							TimeSpan rs = responseLength.Elapsed;
-							if (ts.Seconds >= 2 && rs.Seconds > 0 && rs.Seconds <= 30 && !shortLock) {
-								silenceTime = 10;
+                            //Check response length if user has been silent for 2 seconds, only alert them once per question for either one
+                            TimeSpan rs = responseLength.Elapsed;
+                            if (ts.Seconds >= 2 && rs.Seconds > 0 && rs.Seconds <= 30 && !shortLock)
+                            {
+                                silenceTime = 10;
                                 shortLock = true;
-								//Pop up icon saying to speak more
-								shortImage.CrossFadeAlpha(1, 0.1f, false);
+                                //Pop up icon saying to speak more
+                                shortImage.CrossFadeAlpha(1, 0.1f, false);
                                 print("Short Response");
-								AddAlert ("Short Response");
-								Invoke ("hideHourglass", 3);
-							} else if (rs.Seconds > 30 && rs.Seconds < 120) {
-								silenceTime = 5;
-								//Do nothing, continue
-							} else if (ts.Seconds >= 2 && rs.Seconds > 120 && !longLock) {
-								silenceTime = 2;
+                                AddAlert("Short Response");
+                                Invoke("hideHourglass", 3);
+                            }
+                            else if (rs.Seconds > 30 && rs.Seconds < 120)
+                            {
+                                silenceTime = 5;
+                                //Do nothing, continue
+                            }
+                            else if (ts.Seconds >= 2 && rs.Seconds > 120 && !longLock)
+                            {
+                                silenceTime = 2;
                                 longLock = true;
-								//Pop up icon saying you spoke too much
-								longImage.CrossFadeAlpha(1, 0.1f, false);
+                                //Pop up icon saying you spoke too much
+                                longImage.CrossFadeAlpha(1, 0.1f, false);
                                 print("Long Response");
-                                AddAlert ("Long Response");
-								Invoke ("hideHourglass", 3);
-							}
+                                AddAlert("Long Response");
+                                Invoke("hideHourglass", 3);
+                            }
 
                             if (1 <= ts.Seconds && pauseLock)
                             {
@@ -274,7 +286,8 @@ public class Questions : MonoBehaviour {
                                 nextQuestion();
                             }
                         }
-                    }else if (!userAnswered)
+                    }
+                    else if (!userAnswered)
                     {
                         TimeSpan ts = silence.Elapsed;
                         if (level > sensitivity)
@@ -310,86 +323,100 @@ public class Questions : MonoBehaviour {
     }
 
 
-	void hideHourglass(){
-		shortImage.CrossFadeAlpha(0, 0.1f, false);
-		longImage.CrossFadeAlpha(0, 0.1f, false);
-	}
+    void hideHourglass()
+    {
+        shortImage.CrossFadeAlpha(0, 0.1f, false);
+        longImage.CrossFadeAlpha(0, 0.1f, false);
+    }
 
     /* Saves timestamp of answered question to csv
 	 * 
 	 */
-    void questionTimestamp (int minute, int second){
+    void questionTimestamp(int minute, int second)
+    {
         double temp = (double)minute + ((double)second / 60);
         temp = Math.Round(temp, 2);
-        questionResponses.WriteLine (currQuestion + "," + temp);
-        questionResponses.Flush ();
-	}
+        questionResponses.WriteLine(currQuestion + "," + temp);
+        questionResponses.Flush();
+    }
 
-	/* Handles recording audioclip when called and detects if user is still speaking
+    /* Handles recording audioclip when called and detects if user is still speaking
 	 * 
 	 */
-	public void recordAudioClip(){
-		if (!userAnswered) {
-			//Maximum clip length of 3 minutes
-			//currentClip = Microphone.Start (Microphone.devices [0], true, 180, 44100);
-			userAnswered = true;
-			print ("userAnswered = true");
-			responseLength.Start ();
-		} 
-	}
+    public void recordAudioClip()
+    {
+        if (!userAnswered)
+        {
+            //Maximum clip length of 3 minutes
+            //currentClip = Microphone.Start (Microphone.devices [0], true, 180, 44100);
+            userAnswered = true;
+            print("userAnswered = true");
+            responseLength.Start();
+        }
+    }
 
-	/* Stops currently recording clip and flips flag
+    /* Stops currently recording clip and flips flag
 	 * Format of csv: minute, questionNumber
 	 */
-	public void stopAudioClip(){
+    public void stopAudioClip()
+    {
         //Reset Flags
-		clipRecorded = true;
+        clipRecorded = true;
         shortLock = false;
         longLock = false;
-		clipCounter++;
-		//Microphone.End(Microphone.devices[0]);
-		//Save Audio to file
-		print ("clipRecorded = true");
-		responseLength.Stop ();
+        clipCounter++;
+        //Microphone.End(Microphone.devices[0]);
+        //Save Audio to file
+        print("clipRecorded = true");
+        responseLength.Stop();
         TimeSpan timestamp = timeline.Elapsed; //Timestamp
-		TimeSpan responseTimespan = responseLength.Elapsed; //Time spent talking
-		responseLength.Reset();
+        TimeSpan responseTimespan = responseLength.Elapsed; //Time spent talking
+        responseLength.Reset();
         double stampTemp = (double)timestamp.Minutes + ((double)timestamp.Seconds / 60);
         stampTemp = Math.Round(stampTemp, 2);
         double timeTemp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
         timeTemp = Math.Round(timeTemp, 2);
         string slot = (currQuestion - 1).ToString();
-        responseLengths.WriteLine (stampTemp + ",1,"  + timeTemp.ToString() + ",slot" + stampTemp);
+        responseLengths.WriteLine(stampTemp + ",1," + timeTemp.ToString() + ",slot" + stampTemp);
         responseLengths.Flush();
         //SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
     }
 
 
 
-	/* Handles moving to each phase and question when needed
+    /* Handles moving to each phase and question when needed
 	 * 
 	 */
-	public void nextQuestion(){
-		if (interrupted) {
-			interruptCounter++;
-			print ("User Interrupted: " + interruptCounter);
-			interrupted = false;
-		}
-			
-		if (!endQuestions && userAnswered && clipRecorded) {
-			print ("Next Question");
-			silence.Reset ();
-			//Reset detection flags
-			clipRecorded = false;
-			userAnswered = false;
+    public void nextQuestion()
+    {
+        if (interrupted)
+        {
+            interruptCounter++;
+            print("User Interrupted: " + interruptCounter);
+            interrupted = false;
+        }
 
-            InterviewerSpeak(currQuestion);
-            currQuestion++;
-
-            if(currQuestion == 9) {
+        if (!endQuestions && userAnswered && clipRecorded)
+        {
+            print("Next Question");
+            silence.Reset();
+            //Reset detection flags
+            clipRecorded = false;
+            userAnswered = false;
+            if (currQuestion == 9)
+            {
                 endQuestions = true;
-				endSimulation ();
+                endSimulation();
             }
+            else
+            {
+                InterviewerSpeak(currQuestion);
+                currQuestion++;
+            }
+
+
+
+
 
             /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
              * 
@@ -429,23 +456,26 @@ public class Questions : MonoBehaviour {
 
 
 
-	/* Takes in current interview phase and selected question
+    /* Takes in current interview phase and selected question
 	 * Plays selected audio clip for question
      * Currently adjusted to have a structured series of questions
 	 */
-	void InterviewerSpeak(int question){
-		response = Resources.Load<AudioClip>("QuestionAudio/Q" + question);
+    void InterviewerSpeak(int question)
+    {
+        response = Resources.Load<AudioClip>("QuestionAudio/Q" + question);
         interviewer.startTalking();
         talking = true;
         print("Question: " + question);
-		//Record timestamp to csv
-		TimeSpan time = timeline.Elapsed;
-		questionTimestamp ((int)time.TotalMinutes, (int)time.TotalSeconds); 
-		AudioSource.PlayClipAtPoint (response, new Vector3(16, 1, 11), 0.6f);
-	}
+        //Record timestamp to csv
+        TimeSpan time = timeline.Elapsed;
+        questionTimestamp((int)time.TotalMinutes, (int)time.TotalSeconds);
+        AudioSource.PlayClipAtPoint(response, new Vector3(16, 1, 11), 0.1f);
+    }
 
-    public void AddAlert(string alertType){
-        if(alertType == "Grab"){
+    public void AddAlert(string alertType)
+    {
+        if (alertType == "Grab")
+        {
             objectsGrabbed++;
         }
         TimeSpan timestamp = timeline.Elapsed;
@@ -455,27 +485,27 @@ public class Questions : MonoBehaviour {
         alerts.Flush();
     }
 
-	void endSimulation(){
-		miscMetrics.WriteLine("Interrupts, "+ interruptCounter);
-		miscMetrics.WriteLine("Pauses, " + pauses);
-		miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
-		miscMetrics.Flush();
+    //Normally will put everything that is in OnApplicationQuit here
+    void endSimulation()
+    {
+        print("FINISHED");
+    }
 
-		//TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
-		//Closes the file
-		questionResponses.Close();
-		responseLengths.Close();
-		alerts.Close();
-		miscMetrics.Close ();
+    void OnApplicationQuit()
+    {
+        miscMetrics.WriteLine("Interrupts, " + interruptCounter);
+        miscMetrics.WriteLine("Pauses, " + pauses);
+        miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
+        miscMetrics.Flush();
 
-		timeline.Stop();
-		if (Microphone.devices.Length != 0)
-		{
-			//Save Audio to file
+        //TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
+        //Closes the file
+        questionResponses.Close();
+        responseLengths.Close();
+        alerts.Close();
+        miscMetrics.Close();
 
-			//TODO: uncomment this in final build
-			SavWav.Save("userAudio", microphoneInput);
-		}
-		SceneManager.LoadScene("Post");
-	}
+        timeline.Stop();
+        var filedone = SavWav.Save("userAudio", microphoneInput);
+    }
 }
