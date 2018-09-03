@@ -83,7 +83,7 @@ public class Questions : MonoBehaviour
 
         //Formats for each of the csv's
         questionResponses.WriteLine("Question,Timestamp (Minutes)");
-        responseLengths.WriteLine("Timestamp (Minutes),value,Minutes,slot");
+        responseLengths.WriteLine("Timestamp (Minutes),value,Minutes,Question");
         alerts.WriteLine("Alert,Timestamp (Minutes)");
         miscMetrics.WriteLine("Metric");
 
@@ -172,7 +172,7 @@ public class Questions : MonoBehaviour
                     if (!loudWatch.IsRunning)
                     {
                         print("Loud start");
-                        AddAlert("High");
+                        AddAlert("Speaking Loud");
                         loudWatch.Start();
                         loud.CrossFadeAlpha(1, 0.5f, false);
                     }
@@ -377,7 +377,7 @@ public class Questions : MonoBehaviour
         double timeTemp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
         timeTemp = Math.Round(timeTemp, 2);
         string slot = (currQuestion - 1).ToString();
-        responseLengths.WriteLine(stampTemp + ",1," + timeTemp.ToString() + ",slot" + stampTemp);
+        responseLengths.WriteLine(stampTemp + ",1," + timeTemp.ToString() + "," + currQuestion);
         responseLengths.Flush();
         //SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
     }

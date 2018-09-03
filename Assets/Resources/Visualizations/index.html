@@ -26,50 +26,22 @@
     </header>
 
     <div class="w3-container" style="padding:25px">
-	<h2>Question Information</h2>
-	  <div id="questionContainer">
-         <script type="text/javascript">
-          function draw(data) {
-            var svg = dimple.newSvg("#questionContainer", 900, 200);
-            // Create and Position a Chart
-            var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(90, 0, 730, 150)
-            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
-			x.overrideMax = 15; //20 minute max
-            var y = myChart.addCategoryAxis("y", "Question");
-            var s = myChart.addSeries('Question', dimple.plot.bubble);
-			myChart.addLegend(800, 0, 30, 500, "right");
-           // s.afterDraw = function () { cleanAxis(x, 10); };
-           // myChart.addLegend(160, 10, 310, 20, "right");
-            myChart.defaultColors = [
-				new dimple.color("#13438e"), //Navy blue
-				new dimple.color("#09C700"), //Green
-				new dimple.color("#00C7AF"), //Sky Blue
-				new dimple.color("#FF5733"), //Orange
-				new dimple.color("#3300C7"), //Blue
-				new dimple.color("#cc33ff"), //Purple
-				new dimple.color("#00ff00"), //Lime Green
-				new dimple.color("#ff00bf"), //Neon Purple
-				new dimple.color("#8942f4"), //Dark Purple
-			]; 
-            myChart.draw();
-          };
-          
-          d3.csv("responseTimestamps.csv", draw);
-        </script>
-      </div>
+	<h2>Question Response Length</h2>
 	  <div id="barChartContainer">
         <script type="text/javascript">
-          var svg = dimple.newSvg("#barChartContainer", 900, 220);
+          var svg = dimple.newSvg("#barChartContainer", 1000, 220);
           d3.csv("responseLengths.csv", function (data) {
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(90, 10, 730, 160)
-            var x = myChart.addCategoryAxis("x", "Timestamp (Minutes)");
+            myChart.setBounds(90, 10, 730, 160);
+            var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
 			x.addOrderRule("Timestamp (Minutes)", false);
             x.overrideMax = 15;
             x.overrideMin = 0;
-            var y= myChart.addMeasureAxis("y", "Response Length");
-            myChart.addSeries('Timestamp (Minutes)', dimple.plot.bar);
+            var y= myChart.addMeasureAxis("y", "Minutes");
+			y.overrideMax = 4;
+            myChart.addSeries(["Question"], dimple.plot.bubble);
+			var l = myChart.addLegend(850, 0, 30, 500, "left");
+			l.fontSize = "15px";
             myChart.defaultColors = [
 				new dimple.color("#13438e"), //Navy blue
 				new dimple.color("#09C700"), //Green
@@ -81,7 +53,7 @@
 				new dimple.color("#ff00bf"), //Neon Purple
 				new dimple.color("#8942f4"), //Dark Purple
 			]; 
-            
+
             myChart.draw();
           });
         </script>
@@ -154,17 +126,19 @@
 			}
 		};
           
-            var svg = dimple.newSvg("#alertContainer", 900, 200);
+            var svg = dimple.newSvg("#alertContainer", 1000, 200);
             // Create and Position a Chart
             var myChart = new dimple.chart(svg, data);
             myChart.setBounds(90, 0, 730, 140)
             var x = myChart.addMeasureAxis("x", "Timestamp (Minutes)");
             x.overrideMax = 15;
             var y = myChart.addCategoryAxis("y", "Alert");
+			y.fontSize = "1px"; //Added this to keep axis label correctly aligned
            // y.overrideMin = 40;
             var s = myChart.addSeries(["Alert"], dimple.plot.bubble);
             s.afterDraw = function () { cleanAxis(y, 2); };
-            myChart.addLegend(800, 0, 30, 500, "right");
+            var l = myChart.addLegend(950, 0, 30, 500, "right");
+			l.fontSize = "15px";
             myChart.defaultColors = [
 				new dimple.color("#13438e"), //Navy blue
 				new dimple.color("#3300C7"), //Blue
