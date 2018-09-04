@@ -53,7 +53,17 @@
 				new dimple.color("#ff00bf"), //Neon Purple
 				new dimple.color("#8942f4"), //Dark Purple
 			]; 
-
+			// first, store a copy of the original _getEntries method.
+			l._getEntries_old = l._getEntries;
+      
+			// now override the method
+			l._getEntries = function()
+			{
+			// but call the original version,
+			// then sort the returned array before returning it.
+			return l._getEntries_old.apply(this, arguments).reverse();
+			}
+      
             myChart.draw();
           });
         </script>
@@ -150,7 +160,16 @@
 				new dimple.color("#ff00bf"), //Neon Purple
 				new dimple.color("#8942f4"), //Dark Purple
 			];
-			
+						// first, store a copy of the original _getEntries method.
+			l._getEntries_old = l._getEntries;
+      
+			// now override the method
+			l._getEntries = function()
+			{
+			// but call the original version,
+			// then sort the returned array before returning it.
+			return l._getEntries_old.apply(this, arguments).reverse();
+			}
             myChart.draw();
           };
           
