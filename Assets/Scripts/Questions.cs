@@ -41,9 +41,9 @@ public class Questions : MonoBehaviour
     private AudioClip response;
 
     //User Mic Input
-    public float sensitivity; //Used for detecting talking in general, default 0.1
-    public float upperSensitivity; //Upper bound on volume, default .6 or .7
-    public float lowerSensitivity; //Lower bound on volume, default .3
+    public float sensitivity; //Used for detecting talking in general
+    public float upperSensitivity; //Upper bound on volume
+    public float lowerSensitivity; //Lower bound on volume
     private int silenceTime;
     private int interruptCounter = 0;
     private Stopwatch silence = new Stopwatch(); //used to detect slience
@@ -119,7 +119,6 @@ public class Questions : MonoBehaviour
         /* Setup mic detection for user */
         if (Microphone.devices.Length == 0)
         {
-            //pause and ask user to plug in mic
             print("no microphone plugged in");
         }
         else
@@ -163,7 +162,12 @@ public class Questions : MonoBehaviour
             }
 
             float level = Mathf.Sqrt(Mathf.Sqrt(levelMax));
-            //print("Level: " + level);
+            if(level >= 0.3)
+            {
+                //Debug statement mostly used for testing audio levels
+                //print("Level: " + level);
+            }
+
             if (level > sensitivity)
             {
                 if (level > upperSensitivity)
@@ -193,8 +197,6 @@ public class Questions : MonoBehaviour
                     print("Recording clip");
                     recordAudioClip();
                 }
-
-                //print ("Level: " + level);
             }
             else
             {
@@ -356,6 +358,8 @@ public class Questions : MonoBehaviour
     }
 
     /* Stops currently recording clip and flips flag
+     * We currently don't use this to actually stop an audioclip as we currently just record the entire session
+     * This is currently used whenever the current question is finished
 	 * Format of csv: minute, questionNumber
 	 */
     public void stopAudioClip()
@@ -377,9 +381,8 @@ public class Questions : MonoBehaviour
         double timeTemp = (double)responseTimespan.Minutes + ((double)responseTimespan.Seconds / 60);
         timeTemp = Math.Round(timeTemp, 2);
         string slot = (currQuestion - 1).ToString();
-        responseLengths.WriteLine(stampTemp + ",1," + timeTemp.ToString() + "," + currQuestion);
+        responseLengths.WriteLine(stampTemp + ",1," + timeTemp.ToString() + "," + slot);
         responseLengths.Flush();
-        //SavWav.Save ("QuestionAudioClip" + clipCounter, currentClip);
     }
 
 
@@ -413,10 +416,6 @@ public class Questions : MonoBehaviour
                 InterviewerSpeak(currQuestion);
                 currQuestion++;
             }
-
-
-
-
 
             /* This Section if for the randomized pool of questions, for inital study there will be a structured path of questions
              * 
@@ -469,7 +468,7 @@ public class Questions : MonoBehaviour
         //Record timestamp to csv
         TimeSpan time = timeline.Elapsed;
         questionTimestamp((int)time.TotalMinutes, (int)time.TotalSeconds);
-        AudioSource.PlayClipAtPoint(response, new Vector3(16, 1, 11), 0.1f);
+        AudioSource.PlayClipAtPoint(response, new Vector3(16, 1, 11), 0.5f);
     }
 
     public void AddAlert(string alertType)
@@ -491,6 +490,11 @@ public class Questions : MonoBehaviour
         print("FINISHED");
     }
 
+    /* Runs when application closes
+     * As stated above this should be moved into a seperate "endSimulation" function
+     * The reason it hasn't already is the line: var filedone = SavWav.Save("userAudio", microphoneInput); uses a 3rd party library to save the user's audio
+     * This library doesn't process fast enough to make the audio availble for playing in the next scene.
+     */
     void OnApplicationQuit()
     {
         miscMetrics.WriteLine("Interrupts, " + interruptCounter);
@@ -498,7 +502,6 @@ public class Questions : MonoBehaviour
         miscMetrics.WriteLine("Objects grabbed, " + objectsGrabbed);
         miscMetrics.Flush();
 
-        //TODO: will probably have to move this to a seperate function that closes all files, Call this when we move scenes
         //Closes the file
         questionResponses.Close();
         responseLengths.Close();

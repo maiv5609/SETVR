@@ -16,7 +16,7 @@ public class API : MonoBehaviour {
 
 	private string AUTHTOKEN;
 	private string REFRESHTOKEN;
-	private const int delay = 15;
+	private const int DELAY = 15;
 
     private Stopwatch timeline = new Stopwatch(); //Timestamp tracking
 
@@ -59,41 +59,31 @@ public class API : MonoBehaviour {
 
     //Main function
     public void Request(){
-        //TODO: Remove this
-        //		TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-        //		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
-        //		startTime = secondsSinceEpoch;
-        //		currentTime = secondsSinceEpoch;
-        //
-        //		print (currentTime);
-        //		print (currentTime * 256);
-
-        //StartCoroutine(RequestToken());
+        StartCoroutine(RequestToken());
     }
 
     /* Requesting Functions */
 
     /* Requests new access token
-	 * 
+	 * The current setup is for a password grant which will need to be changed to a different grant style
 	 */
     private IEnumerator RequestToken(){
 		bool auth = false;
 		//Create and send auth request to Hexoskin
 		WWWForm refreshForm = new WWWForm ();
-		refreshForm.AddField("username", "webert3@wwu.edu");
-		refreshForm.AddField("password", "neat_lab_2018");
+		refreshForm.AddField("username", "[USERNAME]");
+		refreshForm.AddField("password", "[PASSWORD]");
 		refreshForm.AddField("scope", "readonly");
 		refreshForm.AddField("grant_type", "password");
 
+        //We use a UnityWebRequest here because I ran into an issue using c#'s web request library. Unity didn't have web certificates for websites so it was blocking requests
 		using (UnityWebRequest refreshReq = UnityWebRequest.Post (AUTHURL, refreshForm)) {
-			refreshReq.SetRequestHeader("Authorization", "Basic Y0JjaXdYY0pYZlljNURsNWNRMnJid0Z1bVljbVFMOjdkNjE4dE1ydnNRSDJOVzhoWlBybDJyNk9USEttaw==");
+			refreshReq.SetRequestHeader("Authorization", "Basic [INSERT APIKEY HASH]");
 			refreshReq.chunkedTransfer = false;
 
-			//print("Submitting");
 			yield return refreshReq.SendWebRequest();
 			//Check for errors
 			if (refreshReq.error == null){
-				//print("Auth Success");
 				print(refreshReq.downloadHandler.text);
 				//Parse response for auth
 				AuthResponse tokens = Newtonsoft.Json.JsonConvert.DeserializeObject<AuthResponse>(refreshReq.downloadHandler.text);
@@ -106,16 +96,28 @@ public class API : MonoBehaviour {
 			}
 		}
 		if (auth) {
+            //If Auth token was received begin realtime requests for data
 			StartCoroutine (RealTimeRequest ());
 		}
 	}
 
-	/* Makes a request for realtime data
+    /* Makes a request for realtime data
      * Called with the assumption that there is a valid auth token
      * Requests should ask for 15 seconds of data every 15 seconds
-     * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&flat=1&no_timestamps=exact
+     * Example request
+     * https://api.hexoskin.com/api/data/?user=14052&datatype=18&start=392531420416&end=392541193472&no_timestamps=exact
+     * 
+     * Request URL: https://api.hexoskin.com/api/data/
+     * User you are requesting data for: user=14052
+     *     In addition to requesting for a specific user's data you can request for a specific record if you have the recordID using record=23409
+     * Starting point for timeframe of data: start=392531420416
+     * Ending point for timeframe of data: end=392541193472
+     *     End time can be omitted to pull all available data from startpoint onwards
+     * Filter: no_timestamps=exact
+     *     This filter is just one of many filters you could use, this is not needed for the request to work but makes trims down some of the data
      */
-	private IEnumerator RealTimeRequest(){
+    private IEnumerator RealTimeRequest(){
+        //Set up csv files for writing
 		String filePath = Application.dataPath + "/Resources/Visualizations/RR.csv";
         String filePathB = Application.dataPath + "/Resources/Visualizations/Breathing.csv";
 
@@ -125,7 +127,7 @@ public class API : MonoBehaviour {
         writer.WriteLine("Timestamp (Minutes),RR Interval");
         writerB.WriteLine("Timestamp (Minutes),Breathing");
 
-        //Set current timestamp for realtime request, need to multiply this by 256 before request
+        //Set current timestamp for realtime request, need to multiply this by 256 before request to be in line with Hexoskin's timestamping
         TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
 		ulong secondsSinceEpoch = (ulong)t.TotalSeconds;
 		startTime = secondsSinceEpoch;
@@ -133,41 +135,33 @@ public class API : MonoBehaviour {
 		float valueAvg;
 		int numValues;
 
-		//Get data from x seconds ago (Currently need to do testing beforehand to know the delay)
-		currentTime = currentTime - delay;
+		//Get data from x seconds ago 
+		currentTime = currentTime - DELAY;
 
 		ulong currentHexoTime;
 		ulong endHexoTime;
 
 		endTime = startTime + 86400; //End time 24 hours from then
         endHexoTime = endTime * 256;
+
         //By this point valid auth token has been given Repeat call every 15 seconds
         //Have to use while true with a sleep in order to continuing calling every 15 seconds
         while (true){
-			//Create and send auth request to Hexoskin
-			//print("Creating realtime request");
 			currentHexoTime = currentTime * 256;
 
-            //Build request url 18
             //This request will return a flat array of values without timestamps for the requested datatype
+            //datatype here refers to what data we want from the record we are looking at. 18 is RR interval and 33 is breathing rate
 			String realTimeReqURI = "https://api.hexoskin.com/api/data/?datatype=18" + "&start=" + currentHexoTime.ToString() + "&record=" + RECORDID; //+ "&end=" + endHexoTime.ToString();
 			String realTimeBreathURI = "https://api.hexoskin.com/api/data/?datatype=33" + "&start=" + currentHexoTime.ToString() + "&record=" + RECORDID; //+ "&end=" + endHexoTime.ToString();
-            //print (realTimeReqURI);
-            //https://api.hexoskin.com/api/data/?user=14159&datatype=18&start=392579598592&end=392579602432&flat=1&no_timestamps=exact
-
-			//Example Request without end time
-			//String realTimeReqURI = "https://api.hexoskin.com/api/data/?datatype=18&start=392688727808&record=157348";
             
             /*    Request for RR interval data     */
             using (UnityWebRequest realTimeReq = UnityWebRequest.Get (realTimeReqURI)) {
-                //print (AUTHTOKEN);
                 DownloadHandler dH = new DownloadHandlerBuffer();
                 realTimeReq.downloadHandler = dH;
                 realTimeReq.chunkedTransfer = false;
 				realTimeReq.SetRequestHeader("Authorization", "Bearer " + AUTHTOKEN);
 				yield return realTimeReq.SendWebRequest();
 
-                print(realTimeReq.downloadedBytes);
 				//Check for errors
 				if (realTimeReq.isNetworkError || realTimeReq.isHttpError)
 				{
@@ -183,6 +177,7 @@ public class API : MonoBehaviour {
                     string temp;
 					Newtonsoft.Json.JsonReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(output));
 
+                    //This code here parses the response for values and averages the values for use in adjusting the UI indicator
                     bool next = false; //Track next value
                     double stampTemp = 0;
                     while (reader.Read ()) {
@@ -230,15 +225,14 @@ public class API : MonoBehaviour {
 
 					print (valueAvg);
              
-					
 				}
 			}
 
             /*    Request for breathing data     */
-            //TODO: Might need to use something rather than breathing rate as there are gaps in the data. But it mightbe ok. See if I can get raw breathing data.
+            //This section does the same as the RR interval section but for breathing rate.
+            //This section also only writes data to the csv and doesn't have any UI adjustments
             using (UnityWebRequest realTimeReq = UnityWebRequest.Get(realTimeBreathURI))
             {
-                //print (AUTHTOKEN);
                 DownloadHandler dH = new DownloadHandlerBuffer();
                 realTimeReq.downloadHandler = dH;
                 realTimeReq.chunkedTransfer = false;
@@ -286,7 +280,6 @@ public class API : MonoBehaviour {
                                         if(ulong.Parse(prevValue) > 10000)
                                         {
                                             //if first value is null toss out
-
                                         }
                                         else
                                         {
@@ -294,15 +287,12 @@ public class API : MonoBehaviour {
                                             writerB.WriteLine(stampTemp + "," + prevValue);
                                             writerB.Flush();
                                         }
-                                        
                                     }
                                     else
                                     {
                                         writerB.WriteLine(stampTemp + "," + temp);
                                         writerB.Flush();
                                     }
-
-                                    
                                 }
                                 next = false;
                             }
@@ -311,8 +301,8 @@ public class API : MonoBehaviour {
                 }
             }
 
-			yield return new WaitForSeconds(delay);
-			currentTime = currentTime + delay;
+			yield return new WaitForSeconds(DELAY);
+			currentTime = currentTime + DELAY;
 		}
 		writer.Close ();
 	}
